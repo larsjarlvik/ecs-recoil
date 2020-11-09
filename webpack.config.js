@@ -25,7 +25,11 @@ module.exports = {
                 loader: require.resolve('eslint-loader'),
             }],
             exclude: /node_modules/,
-        }
+        },
+        {
+            test: /\.glsl$/,
+            loader: 'webpack-glsl-loader'
+        },
     ]},
     output: {
         path: __dirname + '/dist',

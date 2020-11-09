@@ -1,3 +1,50 @@
-import { Game } from 'entities/game';
+import { Material } from 'components/Material';
+import { Model } from 'components/Model';
+import { World } from 'ecsy';
+import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
+import { Renderable } from 'components/Renderable';
+import { createTriangle } from 'models/triangle';
+import GL from 'base/gl';
+import { Position } from 'components/Position';
 
-new Game().Awake();
+const gl = GL.Instance;
+const canvas = document.getElementById('gfx') as HTMLCanvasElement;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+
+const world = new World();
+world
+    .registerComponent(Model)
+    .registerComponent(Position)
+    .registerComponent(Material)
+    .registerComponent(Renderable)
+    .registerSystem(DefaultRenderSystem);
+
+world.createEntity('triangle')
+    .addComponent(Model, createTriangle())
+    .addComponent(Position, { x: -0.2, y: -0.2, z: 0.0 })
+    .addComponent(Material, { r: 1.0, g: 0.0, b: 0.0, a: 1.0 })
+    .addComponent(Renderable);
+
+world.createEntity('triangle2')
+    .addComponent(Model, createTriangle())
+    .addComponent(Position, { x: 0.4, y: 0.4, z: 0.0 })
+    .addComponent(Material, { r: 0.0, g: 1.0, b: 0.0, a: 1.0 })
+    .addComponent(Renderable);
+
+let lastTime = performance.now();
+function run() {
+    const time = performance.now();
+    const delta = time - lastTime;
+
+    gl.clearColor(0.3, 0.3, 0.3, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    world.execute(delta, time);
+    lastTime = time;
+    requestAnimationFrame(run);
+}
+
+run();
