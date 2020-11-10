@@ -1,12 +1,13 @@
 import { Entity, System } from 'ecsy';
 import GL from 'base/gl';
-import { Renderable } from 'components/Renderable';
+import { Renderable } from 'components/TagComponents';
 import { Model } from 'components/Model';
 import { Material } from 'components/Material';
 import * as shader from 'base/shader';
 import { Position } from 'components/Position';
 import { UniformBuffer } from 'base/UniformBuffer';
-import { vec3, vec4 } from 'gl-matrix';
+import { mat4, vec3, vec4 } from 'gl-matrix';
+import { CameraMatrix } from 'components/Camera';
 
 const gl = GL.Instance;
 
@@ -23,28 +24,38 @@ export class DefaultRenderSystem extends System {
         this.uniformBuffer = new UniformBuffer([
             ...vec4.create(),
             ...vec3.create(),
+            ...mat4.create(),
+            ...mat4.create(),
         ], gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
     }
 
     update(entity: Entity) {
+        const camera = entity.getComponent(CameraMatrix);
         const material = entity.getComponent(Material);
+
+        if (!camera) {
+            throw new Error('No camera object!');
+        }
+
+        this.uniformBuffer.update(camera.modelView, 0);
+        this.uniformBuffer.update(camera.projection, 16);
+
         if (material) {
-            this.uniformBuffer.update([material.r, material.g, material.b, material.a], 0);
+            this.uniformBuffer.update([material.r, material.g, material.b, material.a], 32);
         }
 
         const position = entity.getComponent(Position);
         this.uniformBuffer.update(position
             ? [position.x, position.y, position.z]
             : [0.0, 0.0, 0.0]
-        , 4);
+        , 36);
     }
 
     execute() {
         gl.useProgram(this.shaderProgram);
 
         this.queries.renderables.results.forEach(entity => {
-            const model = entity.getComponent(Model);
-            if (!model) return;
+            const model = entity.getComponent(Model)!;
 
             this.update(entity);
 
@@ -59,5 +70,5 @@ export class DefaultRenderSystem extends System {
 }
 
 DefaultRenderSystem.queries = {
-    renderables: { components: [Renderable] }
+    renderables: { components: [Renderable, Model, CameraMatrix] }
 };

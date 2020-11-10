@@ -3,9 +3,9 @@ import GL from 'base/gl';
 const gl = GL.Instance;
 
 const vertices = [
-    -0.5,  0.5, 0.0,
-    -0.5, -0.5, 0.0,
-     0.5, -0.5, 0.0,
+    -1.5, -1.5, 0.0,
+    -1.5,  1.5, 0.0,
+     1.5, -1.5, 0.0,
 ];
 
 const indices = [0, 1, 2];
