@@ -1,28 +1,29 @@
-import GL from 'base/gl';
+import GL from 'global/gl';
 
 const gl = GL.Instance;
 
-export class UniformBuffer {
+export class UniformBuffer<T> {
     boundLocation: number;
-    data: Float32Array;
+    serializedData: number[];
     buffer: WebGLBuffer;
 
-    constructor(data: ArrayLike<number>, boundLocation = 0) {
+    constructor(boundLocation: number) {
         this.boundLocation = boundLocation;
-        this.data = new Float32Array(data);
 
         this.buffer = gl.createBuffer()!;
         gl.bindBuffer(gl.UNIFORM_BUFFER, this.buffer);
-        gl.bufferData(gl.UNIFORM_BUFFER, this.data, gl.DYNAMIC_DRAW);
         gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this.boundLocation, this.buffer);
     }
 
-    update(data: ArrayLike<number>, offset = 0) {
-        this.data.set(data, offset);
+    set(data: T) {
+        this.serializedData = [];
+        for(const key of Object.keys(data)) {
+            this.serializedData.push(...data[key]);
+        }
 
         gl.bindBuffer(gl.UNIFORM_BUFFER, this.buffer);
-        gl.bufferSubData(gl.UNIFORM_BUFFER, 0, this.data, 0);
+        gl.bufferData(gl.UNIFORM_BUFFER, new Float32Array(this.serializedData), gl.DYNAMIC_DRAW);
         gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this.boundLocation, this.buffer);
     }

@@ -1,5 +1,5 @@
 import { Entity, System } from 'ecsy';
-import GL from 'base/gl';
+import GL from 'global/gl';
 import { Renderable } from 'components/TagComponents';
 import { Model } from 'components/Model';
 import { Material } from 'components/Material';
@@ -7,13 +7,21 @@ import * as shader from 'base/shader';
 import { Position } from 'components/Position';
 import { UniformBuffer } from 'base/UniformBuffer';
 import { mat4, vec3, vec4 } from 'gl-matrix';
-import { CameraMatrix } from 'components/Camera';
+import Camera from 'global/camera';
 
 const gl = GL.Instance;
+const camera = Camera.Instance;
+
+interface MaterialBuffer {
+    modelView: mat4;
+    projection: mat4;
+    color: vec4;
+    position: vec3;
+}
 
 export class DefaultRenderSystem extends System {
     shaderProgram: WebGLProgram;
-    uniformBuffer: UniformBuffer;
+    uniformBuffer: UniformBuffer<MaterialBuffer>;
 
     init() {
         this.shaderProgram = shader.createProgram();
@@ -21,34 +29,19 @@ export class DefaultRenderSystem extends System {
         gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/default.fs.glsl'), gl.FRAGMENT_SHADER));
         shader.linkProgram(this.shaderProgram);
 
-        this.uniformBuffer = new UniformBuffer([
-            ...vec4.create(),
-            ...vec3.create(),
-            ...mat4.create(),
-            ...mat4.create(),
-        ], gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
+        this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
     }
 
     update(entity: Entity) {
-        const camera = entity.getComponent(CameraMatrix);
-        const material = entity.getComponent(Material);
+        const material = entity.getComponent(Material)!;
+        const position = entity.getComponent(Position)!;
 
-        if (!camera) {
-            throw new Error('No camera object!');
-        }
-
-        this.uniformBuffer.update(camera.modelView, 0);
-        this.uniformBuffer.update(camera.projection, 16);
-
-        if (material) {
-            this.uniformBuffer.update([material.r, material.g, material.b, material.a], 32);
-        }
-
-        const position = entity.getComponent(Position);
-        this.uniformBuffer.update(position
-            ? [position.x, position.y, position.z]
-            : [0.0, 0.0, 0.0]
-        , 36);
+        this.uniformBuffer.set({
+            modelView: camera.modelView,
+            projection: camera.projection,
+            color: vec4.fromValues(material.r, material.g, material.b, material.a),
+            position: vec3.fromValues(position.x, position.y, position.z)
+        });
     }
 
     execute() {
@@ -70,5 +63,5 @@ export class DefaultRenderSystem extends System {
 }
 
 DefaultRenderSystem.queries = {
-    renderables: { components: [Renderable, Model, CameraMatrix] }
+    renderables: { components: [Renderable, Model] }
 };

@@ -1,12 +1,13 @@
-class GL
-{
+import Viewport from './viewport';
+
+const viewport = Viewport.Instance;
+
+class GL {
     private static _instance: GL;
     public gl: WebGL2RenderingContext;
 
-    private constructor()
-    {
-        const canvas = document.getElementById('gfx') as HTMLCanvasElement;
-        this.gl = canvas.getContext('webgl2', {
+    private constructor() {
+        this.gl = viewport.viewport.getContext('webgl2', {
             antialias: false,
             desynchronized: false,
             alpha: true,
@@ -18,8 +19,7 @@ class GL
         }) as WebGL2RenderingContext;
     }
 
-    public static get Instance(): WebGL2RenderingContext
-    {
+    public static get Instance(): WebGL2RenderingContext {
         const instance = this._instance || (this._instance = new this());
         return instance.gl;
     }
