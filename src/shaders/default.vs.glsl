@@ -11,8 +11,10 @@ uniform uData {
 };
 
 out vec4 vColor;
+out vec4 vPosition;
 
 void main(void) {
     vColor = color;
-    gl_Position = projection * modelView * vec4(position + vVertex, 1.0);
+    vPosition = vec4(position + vVertex, 1.0);
+    gl_Position = projection * vPosition;
 }
