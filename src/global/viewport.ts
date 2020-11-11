@@ -15,7 +15,7 @@ class Viewport {
     }
 
     private constructor() {
-        this.viewport = document.getElementById('gfx') as HTMLCanvasElement;
+        this.viewport = document.getElementById('gfx') as unknown as HTMLCanvasElement;
 
         window.addEventListener('resize', () => {
             this.setSize();

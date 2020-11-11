@@ -1,17 +1,26 @@
 import GL from 'global/gl';
 import * as shader from 'base/shader';
+import { createQuad, Quad } from 'models/quad';
 
 const gl = GL.Instance;
 
 export class GBuffer {
     fb: WebGLFramebuffer;
     textures: WebGLTexture[];
+
     shaderProgram: WebGLProgram;
     positionTarget: WebGLTexture | null;
     normalTarget: WebGLTexture | null;
     uvTarget: WebGLTexture | null;
 
+    positionLocation: WebGLUniformLocation;
+    normalLocation: WebGLUniformLocation;
+    uvLocation: WebGLUniformLocation;
+    renderQuad: Quad;
+
     private createBufferTexture(internalFormat: number, attachment: number) {
+        gl.getExtension('EXT_color_buffer_float');
+
         const target = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, target);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -25,10 +34,18 @@ export class GBuffer {
     }
 
     constructor() {
+        this.renderQuad = createQuad();
+
         this.shaderProgram = shader.createProgram();
         gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/main.vs.glsl'), gl.VERTEX_SHADER));
         gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/main.fs.glsl'), gl.FRAGMENT_SHADER));
         shader.linkProgram(this.shaderProgram);
+
+        gl.useProgram(this.shaderProgram);
+
+        this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
+        this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
+        this.uvLocation = gl.getUniformLocation(this.shaderProgram, 'uUVBuffer')!;
 
         this.fb = gl.createFramebuffer()!;
         this.bind();
@@ -45,49 +62,20 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT2,
         ]);
 
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
+        gl.uniform1i(this.positionLocation, 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
+        gl.uniform1i(this.normalLocation, 1);
+
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, this.uvTarget);
+        gl.uniform1i(this.uvLocation, 2);
+
         this.unbind();
-    }
-
-    public async bla() {
-        return new Promise((resolve) => {
-            const image = new Image();
-
-            image.onload = () => {
-                const colorTexture = gl.createTexture();
-
-                gl.bindTexture(gl.TEXTURE_2D, colorTexture);
-
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-
-                const levels = Math.floor(Math.log2(Math.max(this.width, this.height))) + 1;
-                gl.texStorage2D(gl.TEXTURE_2D, levels, gl.RGBA8, image.width, image.height);
-                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
-                gl.generateMipmap(gl.TEXTURE_2D);
-                gl.generateMipmap(gl.TEXTURE_2D);
-
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
-                gl.activeTexture(gl.TEXTURE1);
-                gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
-                gl.activeTexture(gl.TEXTURE2);
-                gl.bindTexture(gl.TEXTURE_2D, this.uvTarget);
-                gl.activeTexture(gl.TEXTURE3);
-                gl.bindTexture(gl.TEXTURE_2D, colorTexture);
-
-                gl.useProgram(mainProgram);
-                gl.uniform3fv(eyePositionLocation, eyePosition);
-                gl.uniform1i(positionBufferLocation, 0);
-                gl.uniform1i(normalBufferLocation, 1);
-                gl.uniform1i(uVBufferLocation, 2);
-                gl.uniform1i(textureMapLocation, 3);
-
-                resolve();
-            };
-        });
     }
 
     public bind() {
@@ -95,6 +83,18 @@ export class GBuffer {
     }
 
     public unbind() {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+    public render() {
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.useProgram(this.shaderProgram);
+        gl.depthMask(false);
+
+        gl.enableVertexAttribArray(0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, this.renderQuad.length);
     }
 }
