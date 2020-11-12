@@ -8,12 +8,12 @@ import { Position } from 'components/Position';
 import { Renderable } from 'components/TagComponents';
 import Camera from 'global/camera';
 import Viewport from 'global/viewport';
-// import { GBuffer } from 'base/gbuffer';
+import { GBuffer } from 'base/gbuffer';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
 const viewport = Viewport.Instance;
-// const gBuffer = new GBuffer();
+const gBuffer = new GBuffer();
 
 const canvas = document.getElementById('gfx') as unknown as HTMLCanvasElement;
 canvas.width = window.innerWidth;
@@ -54,15 +54,15 @@ function run() {
     const delta = time - lastTime;
 
     // Render pass
-    // gBuffer.bind();
+    gBuffer.bind();
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.viewport(0, 0, viewport.width, viewport.height);
     camera.update();
     world.execute(delta, time);
 
-    // gBuffer.unbind();
-    // gBuffer.render();
+    gBuffer.unbind();
+    gBuffer.render();
 
     lastTime = time;
     requestAnimationFrame(run);

@@ -88,9 +88,7 @@ export class GBuffer {
 
     public render() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
         gl.useProgram(this.shaderProgram);
-        gl.depthMask(false);
 
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);
