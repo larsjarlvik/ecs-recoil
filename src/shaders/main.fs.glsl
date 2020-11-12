@@ -4,7 +4,10 @@ precision highp float;
 uniform sampler2D uPositionBuffer;
 uniform sampler2D uNormalBuffer;
 uniform sampler2D uBaseColor;
-uniform vec3 eyePosition;
+
+uniform uData {
+    vec3 eyePosition;
+} data;
 
 out vec4 fragColor;
 
@@ -17,7 +20,7 @@ void main() {
     vec3 normal = normalize(texelFetch(uNormalBuffer, fragCoord, 0).xyz);
     vec4 baseColor = texelFetch(uBaseColor, fragCoord, 0);
 
-    vec3 eyeDirection = normalize(eyePosition - position);
+    vec3 eyeDirection = normalize(data.eyePosition - position);
     vec3 lightVec = lightPosition.xyz - position;
     float attenuation = 10.0 - length(lightVec);
     vec3 lightDirection = normalize(lightVec);

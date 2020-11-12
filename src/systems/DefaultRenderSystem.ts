@@ -29,6 +29,8 @@ export class DefaultRenderSystem extends System {
         shader.linkProgram(this.shaderProgram);
 
         this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
+
+        gl.uniform1i(this.baseColorLocation, 0);
     }
 
     update(entity: Entity) {
@@ -59,11 +61,10 @@ export class DefaultRenderSystem extends System {
         this.queries.renderables.results.forEach(entity => {
             const model = entity.getComponent(Model)!;
 
+            this.update(entity);
+
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, model.baseColorTexture);
-            gl.uniform1i(this.baseColorLocation, 0);
-
-            this.update(entity);
 
             gl.enableVertexAttribArray(0);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);

@@ -1,10 +1,16 @@
+import { vec3 } from 'gl-matrix';
 import GL from 'global/gl';
 import Camera from 'global/camera';
 import * as shader from 'base/shader';
 import { createQuad, Quad } from 'models/quad';
+import { UniformBuffer } from './UniformBuffer';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
+
+interface Uniforms {
+    eyePosition: vec3;
+}
 
 export class GBuffer {
     fb: WebGLFramebuffer;
@@ -18,10 +24,9 @@ export class GBuffer {
     positionLocation: WebGLUniformLocation;
     normalLocation: WebGLUniformLocation;
     baseColorLocation: WebGLUniformLocation;
-    modelView: WebGLUniformLocation;
-    projection: WebGLUniformLocation;
     eyePosition: WebGLUniformLocation;
 
+    uniformBuffer: UniformBuffer<Uniforms>;
     renderQuad: Quad;
 
     private createBufferTexture(internalFormat: number, attachment: number) {
@@ -53,10 +58,7 @@ export class GBuffer {
         this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
         this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
         this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
-
-        this.modelView = gl.getUniformLocation(this.shaderProgram, 'modelView')!;
-        this.projection = gl.getUniformLocation(this.shaderProgram, 'projection')!;
-        this.eyePosition = gl.getUniformLocation(this.shaderProgram, 'eyePosition')!;
+        this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
         this.fb = gl.createFramebuffer()!;
         this.bind();
@@ -73,6 +75,9 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT2,
         ]);
 
+        gl.uniform1i(this.positionLocation, 0);
+        gl.uniform1i(this.normalLocation, 1);
+        gl.uniform1i(this.baseColorLocation, 2);
 
         this.unbind();
     }
@@ -89,21 +94,16 @@ export class GBuffer {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
 
+        this.uniformBuffer.set({
+            eyePosition: vec3.fromValues(camera.lookAt[0], camera.lookAt[1], camera.lookAt[2] - camera.distance),
+        });
+
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
-        gl.uniform1i(this.positionLocation, 0);
-
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
-        gl.uniform1i(this.normalLocation, 1);
-
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
-        gl.uniform1i(this.baseColorLocation, 2);
-
-        gl.uniformMatrix4fv(this.modelView, false, camera.modelView);
-        gl.uniformMatrix4fv(this.projection, false, camera.projection);
-        gl.uniform3f(this.eyePosition, 0, 0, -camera.distance);
 
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);

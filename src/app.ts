@@ -18,8 +18,8 @@ const camera = Camera.Instance;
 const viewport = Viewport.Instance;
 const gBuffer = new GBuffer();
 
-
 async function start() {
+    const model = await loadModel('waterbottle');
     const canvas = document.getElementById('gfx') as unknown as HTMLCanvasElement;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -28,12 +28,9 @@ async function start() {
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
     gl.frontFace(gl.CCW);
-    gl.depthFunc(gl.LEQUAL);
-    gl.blendFunc(gl.ONE, gl.ONE);
     gl.clearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2], Settings.clearColor[3]);
 
-    const world = new World();
-    world
+    const world = new World()
         .registerComponent(Model)
         .registerComponent(Transform)
         .registerComponent(Renderable)
@@ -41,10 +38,15 @@ async function start() {
         .registerSystem(SpinnerSystem)
         .registerSystem(DefaultRenderSystem);
 
-    const model = await loadModel('waterbottle');
     world.createEntity('waterbottle')
         .addComponent(Model, model)
-        .addComponent(Transform, { translation: vec3.fromValues(0.0, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Transform, { translation: vec3.fromValues(-0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Spin)
+        .addComponent(Renderable);
+
+    world.createEntity('waterbottle2')
+        .addComponent(Model, model)
+        .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
         .addComponent(Spin)
         .addComponent(Renderable);
 
@@ -62,6 +64,7 @@ async function start() {
         camera.update();
         world.execute(delta, time);
 
+        // Draw pass
         gBuffer.unbind();
         gBuffer.render();
 
