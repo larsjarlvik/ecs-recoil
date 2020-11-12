@@ -21,6 +21,7 @@ export class DefaultRenderSystem extends System {
     shaderProgram: WebGLProgram;
     uniformBuffer: UniformBuffer<MaterialBuffer>;
     baseColorLocation: WebGLUniformLocation;
+    normalMapLocation: WebGLUniformLocation;
 
     init() {
         this.shaderProgram = shader.createProgram();
@@ -30,7 +31,11 @@ export class DefaultRenderSystem extends System {
 
         this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
+        this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
+        this.normalMapLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!;
+
         gl.uniform1i(this.baseColorLocation, 0);
+        gl.uniform1i(this.normalMapLocation, 1);
     }
 
     update(entity: Entity) {
@@ -45,8 +50,6 @@ export class DefaultRenderSystem extends System {
                 mat4.rotateZ(transformMatrix, transformMatrix, transform.rotation[2]);
             }
         }
-
-        this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
 
         this.uniformBuffer.set({
             modelView: camera.modelView,
@@ -65,6 +68,8 @@ export class DefaultRenderSystem extends System {
 
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, model.baseColorTexture);
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, model.normalTexture);
 
             gl.enableVertexAttribArray(0);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
@@ -75,8 +80,12 @@ export class DefaultRenderSystem extends System {
             gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
 
             gl.enableVertexAttribArray(2);
+            gl.bindBuffer(gl.ARRAY_BUFFER, model.tangentBuffer);
+            gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 0, 0);
+
+            gl.enableVertexAttribArray(3);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.uvBuffer);
-            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(3, 2, gl.FLOAT, false, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
             gl.drawElements(gl.TRIANGLES, model.length, gl.UNSIGNED_SHORT,0);
