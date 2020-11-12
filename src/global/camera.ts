@@ -12,7 +12,7 @@ class Camera {
 
     private constructor() {
         this.lookAt = vec3.fromValues(0.0, 0.0, 0.0);
-        this.distance = 10.0;
+        this.distance = 1.0;
         this.modelView = mat4.create();
         this.projection = mat4.create();
     }

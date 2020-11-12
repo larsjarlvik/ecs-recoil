@@ -1,7 +1,7 @@
 import GL from 'global/gl';
+import Camera from 'global/camera';
 import * as shader from 'base/shader';
 import { createQuad, Quad } from 'models/quad';
-import Camera from 'global/camera';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
@@ -10,16 +10,14 @@ export class GBuffer {
     fb: WebGLFramebuffer;
     textures: WebGLTexture[];
 
-    uniforms
-
     shaderProgram: WebGLProgram;
     positionTarget: WebGLTexture | null;
     normalTarget: WebGLTexture | null;
-    uvTarget: WebGLTexture | null;
+    baseColorTarget: WebGLTexture | null;
 
     positionLocation: WebGLUniformLocation;
     normalLocation: WebGLUniformLocation;
-    uvLocation: WebGLUniformLocation;
+    baseColorLocation: WebGLUniformLocation;
     modelView: WebGLUniformLocation;
     projection: WebGLUniformLocation;
     eyePosition: WebGLUniformLocation;
@@ -38,6 +36,7 @@ export class GBuffer {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texStorage2D(gl.TEXTURE_2D, 1, internalFormat, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, target, 0);
+        gl.bindTexture(gl.TEXTURE_2D, null);
         return target;
     }
 
@@ -53,7 +52,7 @@ export class GBuffer {
 
         this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
         this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
-        this.uvLocation = gl.getUniformLocation(this.shaderProgram, 'uUVBuffer')!;
+        this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
 
         this.modelView = gl.getUniformLocation(this.shaderProgram, 'modelView')!;
         this.projection = gl.getUniformLocation(this.shaderProgram, 'projection')!;
@@ -65,7 +64,7 @@ export class GBuffer {
         gl.activeTexture(gl.TEXTURE0);
         this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
         this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
-        this.uvTarget = this.createBufferTexture(gl.RG16F, gl.COLOR_ATTACHMENT2);
+        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
         this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
 
         gl.drawBuffers([
@@ -74,17 +73,6 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT2,
         ]);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
-        gl.uniform1i(this.positionLocation, 0);
-
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
-        gl.uniform1i(this.normalLocation, 1);
-
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.uvTarget);
-        gl.uniform1i(this.uvLocation, 2);
 
         this.unbind();
     }
@@ -100,6 +88,18 @@ export class GBuffer {
     public render() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
+        gl.uniform1i(this.positionLocation, 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
+        gl.uniform1i(this.normalLocation, 1);
+
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
+        gl.uniform1i(this.baseColorLocation, 2);
 
         gl.uniformMatrix4fv(this.modelView, false, camera.modelView);
         gl.uniformMatrix4fv(this.projection, false, camera.projection);

@@ -1,7 +1,7 @@
 import { System } from 'ecsy';
+import { vec3 } from 'gl-matrix';
 import { Spin } from 'components/TagComponents';
 import { Transform } from 'components/Transform';
-import { vec3 } from 'gl-matrix';
 
 const speed = 0.001;
 
