@@ -13,5 +13,5 @@ void main() {
     vec3 normal = texelFetch(uNormalBuffer, fragCoord, 0).xyz;
     vec3 uv = texelFetch(uUVBuffer, fragCoord, 0).xyz;
 
-    fragColor = vec4(uv, 1.0);
+    fragColor = vec4(normal, 1.0);
 }

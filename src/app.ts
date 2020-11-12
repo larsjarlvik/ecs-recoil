@@ -2,13 +2,16 @@ import { Material } from 'components/Material';
 import { Model } from 'components/Model';
 import { World } from 'ecsy';
 import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
-import { createTriangle } from 'models/triangle';
+// import { createTriangle } from 'models/triangle';
 import GL from 'global/gl';
-import { Position } from 'components/Position';
-import { Renderable } from 'components/TagComponents';
+import { Transform } from 'components/Transform';
+import { Renderable, Spin } from 'components/TagComponents';
 import Camera from 'global/camera';
 import Viewport from 'global/viewport';
 import { GBuffer } from 'base/gbuffer';
+import { createCube } from 'models/cube';
+import { vec3 } from 'gl-matrix';
+import { SpinnerSystem } from 'systems/SpinnerSystem';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
@@ -28,23 +31,24 @@ gl.clearColor(0.3, 0.3, 0.3, 1.0);
 const world = new World();
 world
     .registerComponent(Model)
-    .registerComponent(Position)
+    .registerComponent(Transform)
     .registerComponent(Material)
     .registerComponent(Renderable)
+    .registerComponent(Spin)
+    .registerSystem(SpinnerSystem)
     .registerSystem(DefaultRenderSystem);
 
-const triangle = createTriangle();
+// world.createEntity('triangle')
+//     .addComponent(Model, createTriangle())
+//     .addComponent(Transform, { translation: vec3.fromValues(-2.0, -0.2, 1.0), rotation: vec3.fromValues(0.0, 0.0, 0.0) })
+//     .addComponent(Material, { r: 1.0, g: 0.0, b: 0.0, a: 1.0 })
+//     .addComponent(Renderable);
 
-world.createEntity('triangle')
-    .addComponent(Model, triangle)
-    .addComponent(Position, { x: -0.2, y: -0.2, z: 1.0 })
-    .addComponent(Material, { r: 1.0, g: 0.0, b: 0.0, a: 1.0 })
-    .addComponent(Renderable);
-
-world.createEntity('triangle2')
-    .addComponent(Model, triangle)
-    .addComponent(Position, { x: 0.4, y: 0.4, z: 0.0 })
+world.createEntity('cube')
+    .addComponent(Model, createCube())
+    .addComponent(Transform, { translation: vec3.fromValues(-0.2, -0.2, 1.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
     .addComponent(Material, { r: 0.0, g: 1.0, b: 0.0, a: 1.0 })
+    .addComponent(Spin)
     .addComponent(Renderable);
 
 let lastTime = performance.now();

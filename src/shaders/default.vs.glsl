@@ -1,20 +1,24 @@
 #version 300 es
 precision highp float;
 
-in vec3 vVertex;
+layout(location = 0) in vec3 aVertex;
+layout(location = 1) in vec3 aNormal;
 
 uniform uData {
     mat4 modelView;
     mat4 projection;
     vec4 color;
-    vec3 position;
-};
+    mat4 transform;
+} data;
 
-out vec4 vColor;
-out vec4 vPosition;
+out vec4 vertColor;
+out vec4 vertPosition;
+out vec4 vertNormal;
 
 void main(void) {
-    vColor = color;
-    vPosition = modelView * vec4(position + vVertex, 1.0);
-    gl_Position = projection * vPosition;
+    vertColor = data.color;
+    vertPosition = data.modelView * data.transform * vec4(aVertex, 1.0);
+    vertNormal = data.transform * vec4(aNormal, 1.0);
+
+    gl_Position = data.projection * vertPosition;
 }

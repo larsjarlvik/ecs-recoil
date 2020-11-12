@@ -62,7 +62,6 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT2,
         ]);
 
-
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
         gl.uniform1i(this.positionLocation, 0);

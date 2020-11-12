@@ -4,9 +4,9 @@ import { Renderable } from 'components/TagComponents';
 import { Model } from 'components/Model';
 import { Material } from 'components/Material';
 import * as shader from 'base/shader';
-import { Position } from 'components/Position';
+import { Transform } from 'components/Transform';
 import { UniformBuffer } from 'base/UniformBuffer';
-import { mat4, vec3, vec4 } from 'gl-matrix';
+import { mat4, vec4 } from 'gl-matrix';
 import Camera from 'global/camera';
 
 const gl = GL.Instance;
@@ -16,7 +16,7 @@ interface MaterialBuffer {
     modelView: mat4;
     projection: mat4;
     color: vec4;
-    position: vec3;
+    transform: mat4;
 }
 
 export class DefaultRenderSystem extends System {
@@ -34,13 +34,23 @@ export class DefaultRenderSystem extends System {
 
     update(entity: Entity) {
         const material = entity.getComponent(Material)!;
-        const position = entity.getComponent(Position)!;
+        const transform = entity.getComponent(Transform);
+
+        const transformMatrix = mat4.create();
+        if (transform) {
+            if (transform.translation) mat4.translate(transformMatrix, transformMatrix, transform.translation);
+            if (transform.rotation) {
+                mat4.rotateX(transformMatrix, transformMatrix, transform.rotation[0]);
+                mat4.rotateY(transformMatrix, transformMatrix, transform.rotation[1]);
+                mat4.rotateZ(transformMatrix, transformMatrix, transform.rotation[2]);
+            }
+        }
 
         this.uniformBuffer.set({
             modelView: camera.modelView,
             projection: camera.projection,
             color: vec4.fromValues(material.r, material.g, material.b, material.a),
-            position: vec3.fromValues(position.x, position.y, position.z)
+            transform: transformMatrix,
         });
     }
 
@@ -55,6 +65,10 @@ export class DefaultRenderSystem extends System {
             gl.enableVertexAttribArray(0);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
             gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+            gl.enableVertexAttribArray(1);
+            gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
             gl.drawElements(gl.TRIANGLES, model.length, gl.UNSIGNED_SHORT,0);
