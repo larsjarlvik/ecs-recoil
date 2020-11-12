@@ -17,8 +17,8 @@ out vec4 vertNormal;
 
 void main(void) {
     vertColor = data.color;
-    vertPosition = data.modelView * data.transform * vec4(aVertex, 1.0);
+    vertPosition = data.transform * vec4(aVertex, 1.0);
     vertNormal = data.transform * vec4(aNormal, 1.0);
 
-    gl_Position = data.projection * vertPosition;
+    gl_Position = data.projection * data.modelView * vertPosition;
 }

@@ -1,12 +1,16 @@
 import GL from 'global/gl';
 import * as shader from 'base/shader';
 import { createQuad, Quad } from 'models/quad';
+import Camera from 'global/camera';
 
 const gl = GL.Instance;
+const camera = Camera.Instance;
 
 export class GBuffer {
     fb: WebGLFramebuffer;
     textures: WebGLTexture[];
+
+    uniforms
 
     shaderProgram: WebGLProgram;
     positionTarget: WebGLTexture | null;
@@ -16,6 +20,10 @@ export class GBuffer {
     positionLocation: WebGLUniformLocation;
     normalLocation: WebGLUniformLocation;
     uvLocation: WebGLUniformLocation;
+    modelView: WebGLUniformLocation;
+    projection: WebGLUniformLocation;
+    eyePosition: WebGLUniformLocation;
+
     renderQuad: Quad;
 
     private createBufferTexture(internalFormat: number, attachment: number) {
@@ -46,6 +54,10 @@ export class GBuffer {
         this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
         this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
         this.uvLocation = gl.getUniformLocation(this.shaderProgram, 'uUVBuffer')!;
+
+        this.modelView = gl.getUniformLocation(this.shaderProgram, 'modelView')!;
+        this.projection = gl.getUniformLocation(this.shaderProgram, 'projection')!;
+        this.eyePosition = gl.getUniformLocation(this.shaderProgram, 'eyePosition')!;
 
         this.fb = gl.createFramebuffer()!;
         this.bind();
@@ -88,6 +100,10 @@ export class GBuffer {
     public render() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
+
+        gl.uniformMatrix4fv(this.modelView, false, camera.modelView);
+        gl.uniformMatrix4fv(this.projection, false, camera.projection);
+        gl.uniform3f(this.eyePosition, 0, 0, -camera.distance);
 
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);

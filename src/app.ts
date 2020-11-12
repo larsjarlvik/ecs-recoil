@@ -12,6 +12,7 @@ import { GBuffer } from 'base/gbuffer';
 import { createCube } from 'models/cube';
 import { vec3 } from 'gl-matrix';
 import { SpinnerSystem } from 'systems/SpinnerSystem';
+import { createSphere } from 'models/sphere';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
@@ -26,7 +27,9 @@ gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
 gl.cullFace(gl.BACK);
 gl.frontFace(gl.CCW);
-gl.clearColor(0.3, 0.3, 0.3, 1.0);
+gl.depthFunc(gl.LEQUAL);
+gl.blendFunc(gl.ONE, gl.ONE);
+gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
 const world = new World();
 world
@@ -38,16 +41,17 @@ world
     .registerSystem(SpinnerSystem)
     .registerSystem(DefaultRenderSystem);
 
-// world.createEntity('triangle')
-//     .addComponent(Model, createTriangle())
-//     .addComponent(Transform, { translation: vec3.fromValues(-2.0, -0.2, 1.0), rotation: vec3.fromValues(0.0, 0.0, 0.0) })
-//     .addComponent(Material, { r: 1.0, g: 0.0, b: 0.0, a: 1.0 })
-//     .addComponent(Renderable);
+world.createEntity('triangle')
+    .addComponent(Model, createCube())
+    .addComponent(Transform, { translation: vec3.fromValues(-2.0, -0.0, 0.0), rotation: vec3.fromValues(0.0, 0.0, 0.0) })
+    .addComponent(Material, { r: 0.5, g: 0.5, b: 0.5, a: 1.0 })
+    .addComponent(Spin)
+    .addComponent(Renderable);
 
 world.createEntity('cube')
-    .addComponent(Model, createCube())
-    .addComponent(Transform, { translation: vec3.fromValues(-0.2, -0.2, 1.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
-    .addComponent(Material, { r: 0.0, g: 1.0, b: 0.0, a: 1.0 })
+    .addComponent(Model, createSphere())
+    .addComponent(Transform, { translation: vec3.fromValues(2.0, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+    .addComponent(Material, { r: 0.5, g: 0.5, b: 0.5, a: 1.0 })
     .addComponent(Spin)
     .addComponent(Renderable);
 
