@@ -13,17 +13,17 @@ uniform uData {
 } data;
 
 out vec4 vertPosition;
-out mat3 vertTangent;
+out vec3 vertNormal;
+out vec4 vertTangent;
 out vec2 vertUv;
 
 void main(void) {
-    vec3 normalW = normalize(vec3(vec4(aNormal.xyz, 0.0)));
+    vec3 normalW = normalize(vec3(data.transform * vec4(aNormal.xyz, 0.0)));
     vec3 tangentW = normalize(vec3(data.transform * vec4(aTangent.xyz, 0.0)));
-    vec3 bitangentW = cross(normalW, tangentW) * aTangent.w;
-    mat3 tangent = mat3(tangentW, bitangentW, normalW);
 
     vertPosition = data.transform * vec4(aVertex, 1.0);
-    vertTangent = tangent;
+    vertNormal = normalW;
+    vertTangent = vec4(tangentW, aTangent.w);
     vertUv = aUv;
 
     gl_Position = data.projection * data.modelView * vertPosition;

@@ -10,9 +10,9 @@ export class SpinnerSystem extends System {
         this.queries.spinnable.results.forEach(entity => {
             const transform = entity.getMutableComponent(Transform)!;
             transform.rotation = vec3.fromValues(
-                transform.rotation[0] + speed * delta,
+                0.0, // transform.rotation[0] + speed * delta,
                 transform.rotation[1] + speed * delta,
-                transform.rotation[2] + speed * delta,
+                0.0, // transform.rotation[2] + speed * delta,
             );
         });
     }

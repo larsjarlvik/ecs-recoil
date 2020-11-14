@@ -18,13 +18,15 @@ export class GBuffer {
 
     shaderProgram: WebGLProgram;
     positionTarget: WebGLTexture | null;
-    baseColorTarget: WebGLTexture | null;
+    normalTarget: WebGLTexture | null;
     tangentTarget: WebGLTexture | null;
+    baseColorTarget: WebGLTexture | null;
     normalMapTarget: WebGLTexture | null;
 
     positionLocation: WebGLUniformLocation;
-    baseColorLocation: WebGLUniformLocation;
+    normalLocation: WebGLUniformLocation;
     tangentLocation: WebGLUniformLocation;
+    baseColorLocation: WebGLUniformLocation;
     normalMapLocation: WebGLUniformLocation;
 
     eyePosition: WebGLUniformLocation;
@@ -59,6 +61,7 @@ export class GBuffer {
         gl.useProgram(this.shaderProgram);
 
         this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
+        this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
         this.tangentLocation = gl.getUniformLocation(this.shaderProgram, 'uTangentBuffer')!;
         this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
         this.normalMapLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!;
@@ -69,9 +72,10 @@ export class GBuffer {
 
         gl.activeTexture(gl.TEXTURE0);
         this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
-        this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
-        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
-        this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
+        this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
+        this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
+        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
+        this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT4);
         this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
 
         gl.drawBuffers([
@@ -79,12 +83,14 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT1,
             gl.COLOR_ATTACHMENT2,
             gl.COLOR_ATTACHMENT3,
+            gl.COLOR_ATTACHMENT4,
         ]);
 
         gl.uniform1i(this.positionLocation, 0);
-        gl.uniform1i(this.tangentLocation, 1);
-        gl.uniform1i(this.baseColorLocation, 2);
-        gl.uniform1i(this.normalMapLocation, 3);
+        gl.uniform1i(this.normalLocation, 1);
+        gl.uniform1i(this.tangentLocation, 2);
+        gl.uniform1i(this.baseColorLocation, 3);
+        gl.uniform1i(this.normalMapLocation, 4);
 
         this.unbind();
     }
@@ -102,16 +108,18 @@ export class GBuffer {
         gl.useProgram(this.shaderProgram);
 
         this.uniformBuffer.set({
-            eyePosition: vec3.fromValues(camera.lookAt[0], camera.lookAt[1], camera.lookAt[2] - camera.distance),
+            eyePosition: vec3.fromValues(camera.lookAt[0], camera.lookAt[1], camera.lookAt[2] + camera.distance),
         });
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
         gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this.tangentTarget);
+        gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
+        gl.bindTexture(gl.TEXTURE_2D, this.tangentTarget);
         gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
+        gl.activeTexture(gl.TEXTURE4);
         gl.bindTexture(gl.TEXTURE_2D, this.normalMapTarget);
 
         gl.enableVertexAttribArray(0);
