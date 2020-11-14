@@ -108,7 +108,7 @@ export class GBuffer {
         gl.useProgram(this.shaderProgram);
 
         this.uniformBuffer.set({
-            eyePosition: vec3.fromValues(camera.lookAt[0], camera.lookAt[1], camera.lookAt[2] + camera.distance),
+            eyePosition: camera.position,
         });
 
         gl.activeTexture(gl.TEXTURE0);
