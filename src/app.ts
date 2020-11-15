@@ -19,13 +19,16 @@ const viewport = Viewport.Instance;
 const gBuffer = new GBuffer();
 
 async function start() {
-    const model = await loadModel('waterbottle');
+    const model = await loadModel('waterbottle/waterbottle');
+    const model2 = await loadModel('pine/pine-1');
+
     const canvas = document.getElementById('gfx') as unknown as HTMLCanvasElement;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
+    gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     gl.cullFace(gl.BACK);
     gl.frontFace(gl.CCW);
     gl.clearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2], Settings.clearColor[3]);
@@ -45,7 +48,7 @@ async function start() {
         .addComponent(Renderable);
 
     world.createEntity('waterbottle2')
-        .addComponent(Model, model)
+        .addComponent(Model, model2)
         .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
         .addComponent(Spin)
         .addComponent(Renderable);

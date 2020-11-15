@@ -104,6 +104,9 @@ export class GBuffer {
     }
 
     public render() {
+        gl.depthMask(false);
+        gl.enable(gl.BLEND);
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
 
@@ -126,5 +129,8 @@ export class GBuffer {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLES, 0, this.renderQuad.length);
+
+        gl.depthMask(true);
+        gl.disable(gl.BLEND);
     }
 }

@@ -4,8 +4,8 @@ import { Model } from 'components/Model';
 
 const gl = GL.Instance;
 
-export const loadModel = async (name: string) => {
-    const model = await gltf.loadModel(gl, `/models/${name}/${name}.gltf`);
+export const loadModel = async (path: string) => {
+    const model = await gltf.loadModel(gl, `/models/${path}.gltf`);
 
     return {
         vertexBuffer: model.meshes[0].positions.buffer,
