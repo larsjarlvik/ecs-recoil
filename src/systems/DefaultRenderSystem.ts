@@ -71,19 +71,15 @@ export class DefaultRenderSystem extends System {
             gl.activeTexture(gl.TEXTURE1);
             gl.bindTexture(gl.TEXTURE_2D, model.normalTexture);
 
-            gl.enableVertexAttribArray(0);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
             gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
 
-            gl.enableVertexAttribArray(1);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
             gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
 
-            gl.enableVertexAttribArray(2);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.tangentBuffer);
             gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 0, 0);
 
-            gl.enableVertexAttribArray(3);
             gl.bindBuffer(gl.ARRAY_BUFFER, model.uvBuffer);
             gl.vertexAttribPointer(3, 2, gl.FLOAT, false, 0, 0);
 

@@ -30,6 +30,10 @@ async function start() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    gl.enableVertexAttribArray(0);
+    gl.enableVertexAttribArray(1);
+    gl.enableVertexAttribArray(2);
+    gl.enableVertexAttribArray(3);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);

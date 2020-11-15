@@ -64,7 +64,7 @@ export class GBuffer {
         this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
         this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
         this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT4);
-        this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
+        this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT24, gl.DEPTH_ATTACHMENT);
     }
 
     constructor(environment: Environment) {
@@ -161,7 +161,6 @@ export class GBuffer {
         gl.activeTexture(gl.TEXTURE8);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.specular);
 
-        gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLES, 0, this.renderQuad.length);
