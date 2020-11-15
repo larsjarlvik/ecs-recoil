@@ -5,6 +5,8 @@ import GL from 'global/gl';
 import Camera from 'global/camera';
 import Viewport from 'global/viewport';
 import { GBuffer } from 'base/gbuffer';
+import { loadEnvironment } from 'base/environment';
+import { Fxaa } from 'base/fxaa';
 import { Model } from 'components/Model';
 import { Transform } from 'components/Transform';
 import { Renderable, Spin } from 'components/TagComponents';
@@ -12,13 +14,13 @@ import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
 import { SpinnerSystem } from 'systems/SpinnerSystem';
 import { loadModel } from 'models/gltf';
 import { Settings } from 'settings';
-import { loadEnvironment } from 'base/environment';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
 const viewport = Viewport.Instance;
 
 async function start() {
+    const fxaa = new Fxaa();
     const environment = await loadEnvironment();
     const gBuffer = new GBuffer(environment);
 
@@ -70,8 +72,11 @@ async function start() {
         world.execute(delta, time);
 
         // Draw pass
-        gBuffer.unbind();
+        fxaa.bind();
         gBuffer.render();
+
+        // Draw to screen
+        fxaa.render();
 
         lastTime = time;
         requestAnimationFrame(run);
