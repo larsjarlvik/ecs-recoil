@@ -4,6 +4,7 @@ import Camera from 'global/camera';
 import * as shader from 'base/shader';
 import { createQuad, Quad } from 'models/quad';
 import { UniformBuffer } from './UniformBuffer';
+import { Environment } from './environment';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
@@ -20,19 +21,26 @@ export class GBuffer {
     positionTarget: WebGLTexture | null;
     normalTarget: WebGLTexture | null;
     tangentTarget: WebGLTexture | null;
+    depthTarget: WebGLTexture | null;
     baseColorTarget: WebGLTexture | null;
     normalMapTarget: WebGLTexture | null;
 
     positionLocation: WebGLUniformLocation;
     normalLocation: WebGLUniformLocation;
     tangentLocation: WebGLUniformLocation;
+    depthLocation: WebGLUniformLocation;
     baseColorLocation: WebGLUniformLocation;
     normalMapLocation: WebGLUniformLocation;
+
+    brfdLutLocation: WebGLUniformLocation;
+    diffuseLocation: WebGLUniformLocation;
+    specularLocation: WebGLUniformLocation;
 
     eyePosition: WebGLUniformLocation;
 
     uniformBuffer: UniformBuffer<Uniforms>;
     renderQuad: Quad;
+    environment: Environment;
 
     private createBufferTexture(internalFormat: number, attachment: number) {
         gl.getExtension('EXT_color_buffer_float');
@@ -50,8 +58,9 @@ export class GBuffer {
         return target;
     }
 
-    constructor() {
+    constructor(environment: Environment) {
         this.renderQuad = createQuad();
+        this.environment = environment;
 
         this.shaderProgram = shader.createProgram();
         gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/main.vs.glsl'), gl.VERTEX_SHADER));
@@ -63,8 +72,13 @@ export class GBuffer {
         this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
         this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
         this.tangentLocation = gl.getUniformLocation(this.shaderProgram, 'uTangentBuffer')!;
+        this.depthLocation = gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!;
         this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
         this.normalMapLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!;
+        this.brfdLutLocation = gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!;
+        this.diffuseLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!;
+        this.specularLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!;
+
         this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
         this.fb = gl.createFramebuffer()!;
@@ -76,7 +90,7 @@ export class GBuffer {
         this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
         this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
         this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT4);
-        this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
+        this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
 
         gl.drawBuffers([
             gl.COLOR_ATTACHMENT0,
@@ -89,8 +103,14 @@ export class GBuffer {
         gl.uniform1i(this.positionLocation, 0);
         gl.uniform1i(this.normalLocation, 1);
         gl.uniform1i(this.tangentLocation, 2);
-        gl.uniform1i(this.baseColorLocation, 3);
-        gl.uniform1i(this.normalMapLocation, 4);
+        gl.uniform1i(this.depthLocation, 3);
+
+        gl.uniform1i(this.baseColorLocation, 4);
+        gl.uniform1i(this.normalMapLocation, 5);
+
+        gl.uniform1i(this.brfdLutLocation, 6);
+        gl.uniform1i(this.diffuseLocation, 7);
+        gl.uniform1i(this.specularLocation, 8);
 
         this.unbind();
     }
@@ -104,9 +124,6 @@ export class GBuffer {
     }
 
     public render() {
-        gl.depthMask(false);
-        gl.enable(gl.BLEND);
-
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
 
@@ -121,16 +138,23 @@ export class GBuffer {
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this.tangentTarget);
         gl.activeTexture(gl.TEXTURE3);
-        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
+        gl.bindTexture(gl.TEXTURE_2D, this.tangentTarget);
+
         gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
+        gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, this.normalMapTarget);
+
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, this.environment.brdfLut);
+        gl.activeTexture(gl.TEXTURE7);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.diffuse);
+        gl.activeTexture(gl.TEXTURE8);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.specular);
 
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLES, 0, this.renderQuad.length);
-
-        gl.depthMask(true);
-        gl.disable(gl.BLEND);
     }
 }

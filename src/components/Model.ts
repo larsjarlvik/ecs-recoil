@@ -6,8 +6,8 @@ export class Model extends Component<Model> {
     tangentBuffer: WebGLBuffer;
     uvBuffer: WebGLBuffer;
     indexBuffer: WebGLBuffer;
-    baseColorTexture: WebGLTexture | null;
-    normalTexture: WebGLTexture | null;
+    baseColorTexture: WebGLTexture;
+    normalTexture: WebGLTexture;
     length: number;
 }
 

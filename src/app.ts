@@ -12,15 +12,17 @@ import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
 import { SpinnerSystem } from 'systems/SpinnerSystem';
 import { loadModel } from 'models/gltf';
 import { Settings } from 'settings';
+import { loadEnvironment } from 'base/environment';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
 const viewport = Viewport.Instance;
-const gBuffer = new GBuffer();
 
 async function start() {
+    const environment = await loadEnvironment();
+    const gBuffer = new GBuffer(environment);
+
     const model = await loadModel('waterbottle/waterbottle');
-    const model2 = await loadModel('pine/pine-1');
 
     const canvas = document.getElementById('gfx') as unknown as HTMLCanvasElement;
     canvas.width = window.innerWidth;
@@ -48,7 +50,7 @@ async function start() {
         .addComponent(Renderable);
 
     world.createEntity('waterbottle2')
-        .addComponent(Model, model2)
+        .addComponent(Model, model)
         .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
         .addComponent(Spin)
         .addComponent(Renderable);
