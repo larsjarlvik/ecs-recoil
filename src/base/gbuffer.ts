@@ -14,7 +14,7 @@ interface Uniforms {
 }
 
 export class GBuffer {
-    fb: WebGLFramebuffer;
+    framebuffer: WebGLFramebuffer;
     textures: WebGLTexture[];
 
     shaderProgram: WebGLProgram;
@@ -58,6 +58,15 @@ export class GBuffer {
         return target;
     }
 
+    private createBufferTextures() {
+        this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
+        this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
+        this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
+        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
+        this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT4);
+        this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
+    }
+
     constructor(environment: Environment) {
         this.renderQuad = createQuad();
         this.environment = environment;
@@ -81,16 +90,11 @@ export class GBuffer {
 
         this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
-        this.fb = gl.createFramebuffer()!;
+        this.framebuffer = gl.createFramebuffer()!;
         this.bind();
 
         gl.activeTexture(gl.TEXTURE0);
-        this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
-        this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
-        this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
-        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
-        this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT4);
-        this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT16, gl.DEPTH_ATTACHMENT);
+        this.createBufferTextures();
 
         gl.drawBuffers([
             gl.COLOR_ATTACHMENT0,
@@ -113,10 +117,15 @@ export class GBuffer {
         gl.uniform1i(this.specularLocation, 8);
 
         this.unbind();
+
+        window.addEventListener('viewportResize', () => {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+            this.createBufferTextures();
+        });
     }
 
     public bind() {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
     }
 
     public unbind() {

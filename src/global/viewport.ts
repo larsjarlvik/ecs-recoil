@@ -4,6 +4,7 @@ class Viewport {
     public width: number;
     public height: number;
     public aspect: number;
+    private resize: CustomEvent<unknown>;
 
     private setSize() {
         this.width = window.innerWidth;
@@ -15,10 +16,12 @@ class Viewport {
     }
 
     private constructor() {
+        this.resize = new CustomEvent('viewportResize');
         this.viewport = document.getElementById('gfx') as unknown as HTMLCanvasElement;
 
         window.addEventListener('resize', () => {
             this.setSize();
+            window.dispatchEvent(this.resize);
         });
 
         this.setSize();

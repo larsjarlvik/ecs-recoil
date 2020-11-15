@@ -45,6 +45,12 @@ export class Fxaa {
         this.frameBuffer = gl.createFramebuffer()!;
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
         this.colorTarget = this.buildColorTexture(gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+        window.addEventListener('viewportResize', () => {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+            gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth, gl.drawingBufferHeight);
+            this.colorTarget = this.buildColorTexture(gl.drawingBufferWidth, gl.drawingBufferHeight);
+        });
     }
 
     public bind() {
