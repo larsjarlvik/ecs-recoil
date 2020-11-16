@@ -1,7 +1,7 @@
 #version 300 es
 precision highp float;
 
-#define LIGHT_INTENSITY 1.0
+#define LIGHT_INTENSITY 4.0
 #define LIGHT_DIRECTION vec3(0.7, -0.7, -1.0)
 #define LIGHT_COLOR vec3(1.0)
 #define M_PI 3.141592653589793
@@ -83,8 +83,8 @@ vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
     vec4 diffuseSample = vec4(0.1, 0.1, 0.1, 1.0);
     vec4 specularSample = vec4(0.3);
 
-    vec3 diffuseLight = srgbToLinear(texture(uEnvironmentDiffuse, n)).rgb * 0.1;
-    vec3 specularLight = srgbToLinear(texture(uEnvironmentSpecular, n)).rgb * 0.2;
+    vec3 diffuseLight = srgbToLinear(texture(uEnvironmentDiffuse, n)).rgb;
+    vec3 specularLight = srgbToLinear(texture(uEnvironmentSpecular, n)).rgb;
 
     vec3 diffuse = diffuseLight * materialInfo.diffuseColor;
     vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);
