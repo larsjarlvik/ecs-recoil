@@ -3,7 +3,7 @@ import Viewport from './viewport';
 
 const viewport = Viewport.Instance;
 
-class Camera {
+export default class Camera {
     private static _instance: Camera;
     public position: vec3;
     public modelView: mat4;
@@ -24,8 +24,7 @@ class Camera {
     }
 
     public static get Instance(): Camera {
-        const instance = this._instance || (this._instance = new this());
-        return instance;
+        return this._instance || (this._instance = new this());
     }
 
     public update() {
@@ -43,5 +42,3 @@ class Camera {
         mat4.perspective(this.projection, 45.0, viewport.width / viewport.height, 0.1, 100.0);
     }
 }
-
-export default Camera;

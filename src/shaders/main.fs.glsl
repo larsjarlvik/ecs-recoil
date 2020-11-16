@@ -4,6 +4,7 @@ precision highp float;
 #define LIGHT_INTENSITY 4.0
 #define LIGHT_DIRECTION vec3(0.7, -0.7, -1.0)
 #define LIGHT_COLOR vec3(1.0)
+#define LIGHT_COUNT 2
 #define M_PI 3.141592653589793
 
 uniform sampler2D uPositionBuffer;
@@ -13,8 +14,16 @@ uniform sampler2D uDepthBuffer;
 uniform sampler2D uBaseColor;
 uniform sampler2D uNormalMap;
 
+struct Light {
+    vec3 position;
+    vec3 color;
+    float range;
+    float intensity;
+};
+
 uniform uData {
     vec3 eyePosition;
+    Light lights[LIGHT_COUNT];
 } data;
 
 out vec4 fragColor;
@@ -74,6 +83,10 @@ vec3 calculateDirectionalLight(MaterialInfo materialInfo, vec3 normal, vec3 view
 
     return vec3(0.0);
 }
+
+// vec3 calculatePositionLight(MaterialInfo materialInfo, Light light, vec3 normal, vec3 view) {
+
+// }
 
 vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
     float NdotV = clamp(dot(n, v), 0.0, 1.0);
@@ -147,8 +160,18 @@ void main() {
 
     vec3 view = normalize(data.eyePosition - position);
     vec3 color = calculateDirectionalLight(materialInfo, normal, view);
+
+    for (int i = 0; i < LIGHT_COUNT; i ++) {
+        Light light = data.lights[i];
+        float distance = length(light.position - position);
+        float attenuation = max(min(1.0 - pow(distance / light.range, 4.0), 1.0), 0.0) / pow(distance, 2.0);
+        vec3 intensity = attenuation * light.intensity * light.color;
+
+        // color += intensity;
+    }
+
     color += getIBLContribution(materialInfo, normal, view);
     color = clamp(color, 0.0, 1.0);
 
-    fragColor = vec4(linearToSrgb(color), 1.0);
+    fragColor = vec4(color, 1.0); // vec4(linearToSrgb(color), 1.0);
 }

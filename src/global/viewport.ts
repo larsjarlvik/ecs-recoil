@@ -1,4 +1,4 @@
-class Viewport {
+export default class Viewport {
     private static _instance: Viewport;
     public viewport: HTMLCanvasElement;
     public width: number;
@@ -28,9 +28,6 @@ class Viewport {
     }
 
     public static get Instance(): Viewport {
-        const instance = this._instance || (this._instance = new this());
-        return instance;
+        return this._instance || (this._instance = new this());
     }
 }
-
-export default Viewport;

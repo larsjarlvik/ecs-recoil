@@ -1,19 +1,18 @@
-import { vec3 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
 import GL from 'global/gl';
 import Camera from 'global/camera';
 import * as shader from 'base/shader';
 import { createQuad, Quad } from 'models/quad';
-import { UniformBuffer } from './UniformBuffer';
 import { Environment } from './environment';
+import Scene from 'global/scene';
+import { UniformBuffer, UniformBufferWrapper } from './UniformBuffer';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
 
-interface Uniforms {
-    eyePosition: vec3;
-}
 
 export class GBuffer {
+    scene: Scene;
     framebuffer: WebGLFramebuffer;
     textures: WebGLTexture[];
 
@@ -38,7 +37,7 @@ export class GBuffer {
 
     eyePosition: WebGLUniformLocation;
 
-    uniformBuffer: UniformBuffer<Uniforms>;
+    uniformBuffer: UniformBufferWrapper;
     renderQuad: Quad;
     environment: Environment;
 
@@ -67,7 +66,8 @@ export class GBuffer {
         this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT24, gl.DEPTH_ATTACHMENT);
     }
 
-    constructor(environment: Environment) {
+    constructor(scene: Scene, environment: Environment) {
+        this.scene = scene;
         this.renderQuad = createQuad();
         this.environment = environment;
 
@@ -88,7 +88,7 @@ export class GBuffer {
         this.diffuseLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!;
         this.specularLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!;
 
-        this.uniformBuffer = new UniformBuffer(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
+        this.uniformBuffer = new UniformBufferWrapper(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
         this.framebuffer = gl.createFramebuffer()!;
         this.bind();
@@ -132,12 +132,31 @@ export class GBuffer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    private getLightBuffer() {
+        const keys = Object.keys(this.scene.root.lights);
+        const uniforms: UniformBuffer[] = [];
+
+        for (let i = 0; i < keys.length; i ++) {
+            const translation = vec3.create();
+            mat4.getTranslation(translation, this.scene.root.transforms[keys[i]]);
+            uniforms.push({
+                translation: { type: 'vec', value: translation },
+                color: { type: 'vec', value: this.scene.root.lights[keys[i]].color },
+                range: { type: 'float', value: this.scene.root.lights[keys[i]].range },
+                intensity: { type: 'float', value: this.scene.root.lights[keys[i]].intensity },
+            });
+        }
+
+        return uniforms;
+    }
+
     public render() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
 
         this.uniformBuffer.set({
-            eyePosition: camera.position,
+            eyePosition: { type: 'vec', value: camera.position },
+            lights: { type: 'struct', value: this.getLightBuffer() }
         });
 
         gl.activeTexture(gl.TEXTURE0);

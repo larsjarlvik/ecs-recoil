@@ -2,7 +2,7 @@ import Viewport from './viewport';
 
 const viewport = Viewport.Instance;
 
-class GL {
+export default class GL {
     private static _instance: GL;
     public gl: WebGL2RenderingContext;
 
@@ -20,9 +20,6 @@ class GL {
     }
 
     public static get Instance(): WebGL2RenderingContext {
-        const instance = this._instance || (this._instance = new this());
-        return instance.gl;
+        return (this._instance || (this._instance = new this())).gl;
     }
 }
-
-export default GL;
