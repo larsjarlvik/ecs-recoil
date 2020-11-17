@@ -1,8 +1,22 @@
+import { mat4, vec3, vec4 } from 'gl-matrix';
 import GL from 'global/gl';
 
 const gl = GL.Instance;
 
-export class UniformBuffer<T> {
+type Type = 'float' | 'vec' | 'mat' | 'struct';
+
+export interface UniformBufferItem {
+    type: Type;
+    value: vec3 | vec4 | mat4 | number | UniformBuffer | UniformBuffer[];
+    size?: number;
+    arrayLength?: number;
+}
+
+export interface UniformBuffer {
+    [key: string]: UniformBufferItem;
+}
+
+export class UniformBufferWrapper {
     boundLocation: number;
     serializedData: number[];
     buffer: WebGLBuffer;
@@ -12,19 +26,51 @@ export class UniformBuffer<T> {
 
         this.buffer = gl.createBuffer()!;
         gl.bindBuffer(gl.UNIFORM_BUFFER, this.buffer);
-        gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this.boundLocation, this.buffer);
     }
 
-    set(data: T) {
-        this.serializedData = [];
-        for(const key of Object.keys(data)) {
-            this.serializedData.push(...data[key]);
+    private pad(length: number) {
+        const l = length > 4 ? 4: length;
+
+        if (l < this.serializedData.length % 4) return;
+        for (let i = 0; i < this.serializedData.length % 4; i ++) {
+            this.serializedData.push(0.0);
         }
+    }
+
+    private build(struct: UniformBuffer) {
+        for (const key of Object.keys(struct)) {
+            const item = struct[key];
+            switch(item.type) {
+                case 'float':
+                    this.serializedData.push(item.value as number);
+                    break;
+                case 'vec':
+                    this.pad((item.value as []).length);
+                    this.serializedData.push(...item.value as number[]);
+                    break;
+                case 'mat':
+                    this.pad((item.value as []).length);
+                    this.serializedData.push(...item.value as number[]);
+                    break;
+                case 'struct':
+                    this.pad((item.value as []).length);
+                    for (let i = 0; i < (item.value as []).length; i ++) this.build(item.value[i]);
+                    if (item.arrayLength && item.size) {
+                        const pad = item.size * (item.arrayLength - (item.value as []).length);
+                        if (pad > 0) this.serializedData.push(...(new Array(pad)));
+                    }
+                    break;
+            }
+        }
+    }
+
+    set(data: UniformBuffer) {
+        this.serializedData = [];
+        this.build(data);
 
         gl.bindBuffer(gl.UNIFORM_BUFFER, this.buffer);
         gl.bufferData(gl.UNIFORM_BUFFER, new Float32Array(this.serializedData), gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this.boundLocation, this.buffer);
     }
 }

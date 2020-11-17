@@ -1,9 +1,10 @@
-class Viewport {
+export default class Viewport {
     private static _instance: Viewport;
     public viewport: HTMLCanvasElement;
     public width: number;
     public height: number;
     public aspect: number;
+    private resize: CustomEvent<unknown>;
 
     private setSize() {
         this.width = window.innerWidth;
@@ -15,19 +16,18 @@ class Viewport {
     }
 
     private constructor() {
-        this.viewport = document.getElementById('gfx') as HTMLCanvasElement;
+        this.resize = new CustomEvent('viewportResize');
+        this.viewport = document.getElementById('gfx') as unknown as HTMLCanvasElement;
 
         window.addEventListener('resize', () => {
             this.setSize();
+            window.dispatchEvent(this.resize);
         });
 
         this.setSize();
     }
 
     public static get Instance(): Viewport {
-        const instance = this._instance || (this._instance = new this());
-        return instance;
+        return this._instance || (this._instance = new this());
     }
 }
-
-export default Viewport;

@@ -26,6 +26,7 @@
   "dependencies": {
     "@types/gl-matrix": "^3.2.0",
     "ecsy": "^0.4.2",
-    "gl-matrix": "^3.3.0"
+    "gl-matrix": "^3.3.0",
+    "webgl-gltf": "^0.3.1"
   }
 }

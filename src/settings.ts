@@ -1,3 +1,4 @@
 export const Settings = Object.freeze({
-    clearColor: [0.3, 0.3, 0.3, 1.0],
+    clearColor: [0.0, 0.0, 0.0, 1.0],
+    maxLights: 10,
 });

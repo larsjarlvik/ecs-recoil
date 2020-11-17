@@ -1,62 +1,88 @@
-import { Material } from 'components/Material';
-import { Model } from 'components/Model';
+
 import { World } from 'ecsy';
-import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
-import { createTriangle } from 'models/triangle';
+import { vec3 } from 'gl-matrix';
 import GL from 'global/gl';
-import { Position } from 'components/Position';
-import { Renderable } from 'components/TagComponents';
 import Camera from 'global/camera';
-import Viewport from 'global/viewport';
+import Scene from 'global/scene';
+import { Model } from 'components/Model';
+import { Light } from 'components/Light';
+import { Transform } from 'components/Transform';
+import { Renderable, Spin } from 'components/TagComponents';
+import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
+import { SpinnerSystem } from 'systems/SpinnerSystem';
+import { loadModel } from 'models/gltf';
+import { Settings } from 'settings';
+import { LightSystem } from 'systems/LightSystem';
+import { TransformSystem } from 'systems/TransformSystem';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
-const viewport = Viewport.Instance;
+const scene = Scene.Instance;
 
-const canvas = document.getElementById('gfx') as HTMLCanvasElement;
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+async function start() {
+    const model = await loadModel('waterbottle/waterbottle');
 
-gl.enable(gl.DEPTH_TEST);
-gl.enable(gl.CULL_FACE);
-gl.cullFace(gl.BACK);
-gl.frontFace(gl.CCW);
+    const canvas = document.getElementById('gfx') as unknown as HTMLCanvasElement;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-const world = new World();
-world
-    .registerComponent(Model)
-    .registerComponent(Position)
-    .registerComponent(Material)
-    .registerComponent(Renderable)
-    .registerSystem(DefaultRenderSystem);
+    gl.enableVertexAttribArray(0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    gl.cullFace(gl.BACK);
+    gl.frontFace(gl.CCW);
+    gl.clearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2], Settings.clearColor[3]);
 
-const triangle = createTriangle();
+    const world = new World()
+        .registerComponent(Model)
+        .registerComponent(Transform)
+        .registerComponent(Renderable)
+        .registerComponent(Spin)
+        .registerComponent(Light)
+        .registerSystem(TransformSystem)
+        .registerSystem(SpinnerSystem)
+        .registerSystem(DefaultRenderSystem)
+        .registerSystem(LightSystem);
 
-world.createEntity('triangle')
-    .addComponent(Model, triangle)
-    .addComponent(Position, { x: -0.2, y: -0.2, z: 1.0 })
-    .addComponent(Material, { r: 1.0, g: 0.0, b: 0.0, a: 1.0 })
-    .addComponent(Renderable);
+    world.createEntity('waterbottle')
+        .addComponent(Model, model)
+        .addComponent(Spin)
+        .addComponent(Transform, { translation: vec3.fromValues(-0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Renderable);
 
-world.createEntity('triangle2')
-    .addComponent(Model, triangle)
-    .addComponent(Position, { x: 0.4, y: 0.4, z: 0.0 })
-    .addComponent(Material, { r: 0.0, g: 1.0, b: 0.0, a: 1.0 })
-    .addComponent(Renderable);
+    world.createEntity('waterbottle2')
+        .addComponent(Model, model)
+        .addComponent(Spin)
+        .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Renderable);
 
-let lastTime = performance.now();
-function run() {
-    const time = performance.now();
-    const delta = time - lastTime;
+    world.createEntity('myFirstLight')
+        .addComponent(Transform, { translation: vec3.fromValues( 0.5, 0.0, 0.0) })
+        .addComponent(Light, { color: vec3.fromValues(0.0, 0.0, 1.0), range: 1.5, intensity: 6.5 });
 
-    gl.clearColor(0.3, 0.3, 0.3, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.viewport(0, 0, viewport.width, viewport.height);
-    camera.update();
+    world.createEntity('myFirstLight2')
+        .addComponent(Transform, { translation: vec3.fromValues(-0.5, 0.0, 0.0) })
+        .addComponent(Light, { color: vec3.fromValues(0.0, 1.0, 0.0), range: 1.5, intensity: 6.5 });
 
-    world.execute(delta, time);
-    lastTime = time;
-    requestAnimationFrame(run);
+    let lastTime = performance.now();
+
+    function run() {
+        const time = performance.now();
+        const delta = time - lastTime;
+
+        // Update
+        camera.update();
+        world.execute(delta, time);
+
+        // Render
+        scene.render();
+
+        lastTime = time;
+        requestAnimationFrame(run);
+    }
+
+    run();
 }
 
-run();
+start();
