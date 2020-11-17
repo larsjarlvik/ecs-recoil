@@ -19,17 +19,13 @@ export class GBuffer {
     shaderProgram: WebGLProgram;
     positionTarget: WebGLTexture | null;
     normalTarget: WebGLTexture | null;
-    tangentTarget: WebGLTexture | null;
     depthTarget: WebGLTexture | null;
     baseColorTarget: WebGLTexture | null;
-    normalMapTarget: WebGLTexture | null;
 
     positionLocation: WebGLUniformLocation;
     normalLocation: WebGLUniformLocation;
-    tangentLocation: WebGLUniformLocation;
     depthLocation: WebGLUniformLocation;
     baseColorLocation: WebGLUniformLocation;
-    normalMapLocation: WebGLUniformLocation;
 
     brfdLutLocation: WebGLUniformLocation;
     diffuseLocation: WebGLUniformLocation;
@@ -60,9 +56,7 @@ export class GBuffer {
     private createBufferTextures() {
         this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
         this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
-        this.tangentTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
-        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
-        this.normalMapTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT4);
+        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
         this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT24, gl.DEPTH_ATTACHMENT);
     }
 
@@ -80,10 +74,8 @@ export class GBuffer {
 
         this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
         this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
-        this.tangentLocation = gl.getUniformLocation(this.shaderProgram, 'uTangentBuffer')!;
         this.depthLocation = gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!;
         this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
-        this.normalMapLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!;
         this.brfdLutLocation = gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!;
         this.diffuseLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!;
         this.specularLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!;
@@ -100,21 +92,16 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT0,
             gl.COLOR_ATTACHMENT1,
             gl.COLOR_ATTACHMENT2,
-            gl.COLOR_ATTACHMENT3,
-            gl.COLOR_ATTACHMENT4,
         ]);
 
         gl.uniform1i(this.positionLocation, 0);
         gl.uniform1i(this.normalLocation, 1);
-        gl.uniform1i(this.tangentLocation, 2);
+        gl.uniform1i(this.baseColorLocation, 2);
         gl.uniform1i(this.depthLocation, 3);
 
-        gl.uniform1i(this.baseColorLocation, 4);
-        gl.uniform1i(this.normalMapLocation, 5);
-
-        gl.uniform1i(this.brfdLutLocation, 6);
-        gl.uniform1i(this.diffuseLocation, 7);
-        gl.uniform1i(this.specularLocation, 8);
+        gl.uniform1i(this.brfdLutLocation, 4);
+        gl.uniform1i(this.diffuseLocation, 5);
+        gl.uniform1i(this.specularLocation, 6);
 
         this.unbind();
 
@@ -164,20 +151,15 @@ export class GBuffer {
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.tangentTarget);
+        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
         gl.activeTexture(gl.TEXTURE3);
-        gl.bindTexture(gl.TEXTURE_2D, this.tangentTarget);
+        gl.bindTexture(gl.TEXTURE_2D, this.depthTarget);
 
         gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
-        gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_2D, this.normalMapTarget);
-
-        gl.activeTexture(gl.TEXTURE6);
         gl.bindTexture(gl.TEXTURE_2D, this.environment.brdfLut);
-        gl.activeTexture(gl.TEXTURE7);
+        gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.diffuse);
-        gl.activeTexture(gl.TEXTURE8);
+        gl.activeTexture(gl.TEXTURE6);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.specular);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);

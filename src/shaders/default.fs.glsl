@@ -3,24 +3,25 @@ precision highp float;
 
 in vec4 vertPosition;
 in vec3 vertNormal;
-in vec4 vertTangent;
+in mat3 vertTangent;
 in vec2 vertUv;
 
 uniform sampler2D uBaseColor;
 uniform sampler2D uNormalMap;
 
 layout(location = 0) out vec4 fragPosition;
-layout(location = 1) out vec4 fragNormal;
-layout(location = 2) out vec4 fragTangent;
-layout(location = 3) out vec4 fragBaseColor;
-layout(location = 4) out vec4 fragNormalMap;
+layout(location = 1) out vec3 fragNormal;
+layout(location = 2) out vec4 fragBaseColor;
 
 void main(void) {
     ivec2 normalSize = textureSize(uNormalMap, 0);
-    int hasNormals = normalSize.x == 1 && normalSize.y == 1 ? 0 : 1;
+    vec3 normal = vertNormal;
+    if (normalSize.x == 1 && normalSize.y == 1) {
+        normal = texture(uNormalMap, vertUv).rgb;
+        normal = normalize(vertTangent * (2.0 * normal - 1.0));
+    }
+
     fragPosition = vertPosition;
-    fragNormal = vec4(vertNormal, hasNormals);
-    fragTangent = vertTangent;
-    fragBaseColor = texture(uBaseColor, vertUv);;
-    fragNormalMap = texture(uNormalMap, vertUv);
+    fragNormal = normal;
+    fragBaseColor = texture(uBaseColor, vertUv);
 }

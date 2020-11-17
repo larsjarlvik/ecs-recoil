@@ -9,10 +9,8 @@ precision highp float;
 
 uniform sampler2D uPositionBuffer;
 uniform sampler2D uNormalBuffer;
-uniform sampler2D uTangentBuffer;
 uniform sampler2D uDepthBuffer;
 uniform sampler2D uBaseColor;
-uniform sampler2D uNormalMap;
 
 struct Light {
     vec3 position;
@@ -124,36 +122,21 @@ MaterialInfo getMaterialInfo(ivec2 fragCoord) {
     );
 }
 
-vec3 getNormal(ivec2 fragCoord) {
-    vec4 n = texelFetch(uNormalBuffer, fragCoord, 0);
-    if (n.w == 1.0) {
-        vec3 normalMap = texelFetch(uNormalMap, fragCoord, 0).xyz;
-
-        vec4 normalW = texelFetch(uNormalBuffer, fragCoord, 0);
-        vec4 tangentW = texelFetch(uTangentBuffer, fragCoord, 0);
-        vec3 bitangentW = cross(normalW.xyz, tangentW.xyz) * tangentW.w;
-        mat3 tangent = mat3(tangentW, bitangentW, normalW);
-        return (tangent * normalMap);
-    }
-
-    return n.xyz;
-}
-
 void main() {
     ivec2 fragCoord = ivec2(gl_FragCoord.xy);
     vec4 depth = texelFetch(uDepthBuffer, fragCoord, 0);
 
-    if (depth.x == 0.0) {
+    if (depth.x == 1.0) {
         fragColor = vec4(0.0);
         return;
     }
 
     MaterialInfo materialInfo = getMaterialInfo(fragCoord);
     vec3 position = texelFetch(uPositionBuffer, fragCoord, 0).xyz;
-    vec3 normal = getNormal(fragCoord);
+    vec3 normal = texelFetch(uNormalBuffer, fragCoord, 0).xyz;
 
     vec3 view = normalize(data.eyePosition - position);
-    vec3 color = vec3(0.0); // calculateLight(materialInfo, normal, view, -LIGHT_DIRECTION, LIGHT_INTENSITY, LIGHT_COLOR);
+    vec3 color = calculateLight(materialInfo, normal, view, -LIGHT_DIRECTION, LIGHT_INTENSITY, LIGHT_COLOR);
 
     for (int i = 0; i < LIGHT_COUNT; i ++) {
         Light light = data.lights[i];
@@ -164,7 +147,7 @@ void main() {
         color += calculateLight(materialInfo, normal, view, light.position - position, intensity, light.color);
     }
 
-    // color += getIBLContribution(materialInfo, normal, view);
+    color += getIBLContribution(materialInfo, normal, view);
     color = clamp(color, 0.0, 1.0);
 
     fragColor = vec4(linearToSrgb(color), 1.0);

@@ -59,11 +59,11 @@ async function start() {
 
     world.createEntity('myFirstLight')
         .addComponent(Transform, { translation: vec3.fromValues( 0.5, 0.0, 0.0) })
-        .addComponent(Light, { color: vec3.fromValues(0.0, 0.0, 1.0), range: 1.5, intensity: 2.5 });
+        .addComponent(Light, { color: vec3.fromValues(0.0, 0.0, 1.0), range: 1.5, intensity: 6.5 });
 
     world.createEntity('myFirstLight2')
         .addComponent(Transform, { translation: vec3.fromValues(-0.5, 0.0, 0.0) })
-        .addComponent(Light, { color: vec3.fromValues(1.0, 0.0, 0.0), range: 1.5, intensity: 2.5 });
+        .addComponent(Light, { color: vec3.fromValues(0.0, 1.0, 0.0), range: 1.5, intensity: 6.5 });
 
     let lastTime = performance.now();
 
