@@ -27,15 +27,16 @@ export class UniformBufferWrapper {
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this.boundLocation, this.buffer);
     }
 
-    private pad() {
+    private pad(length: number) {
+        const l = length > 4 ? 4: length;
+
+        if (l < this.serializedData.length % 4) return;
         for (let i = 0; i < this.serializedData.length % 4; i ++) {
             this.serializedData.push(0.0);
         }
     }
 
     private build(struct: UniformBuffer) {
-        this.pad();
-
         for (const key of Object.keys(struct)) {
             const item = struct[key];
             switch(item.type) {
@@ -43,19 +44,19 @@ export class UniformBufferWrapper {
                     this.serializedData.push(item.value as number);
                     break;
                 case 'vec':
+                    this.pad((item.value as []).length);
                     this.serializedData.push(...item.value as number[]);
-                    this.pad();
                     break;
                 case 'mat':
+                    this.pad((item.value as []).length);
                     this.serializedData.push(...item.value as number[]);
                     break;
                 case 'struct':
+                    this.pad((item.value as []).length);
                     for (let i = 0; i < (item.value as []).length; i ++) this.build(item.value[i]);
                     break;
             }
         }
-
-        this.pad();
     }
 
     set(data: UniformBuffer) {

@@ -16,8 +16,8 @@ uniform sampler2D uNormalMap;
 
 struct Light {
     vec3 position;
-    vec3 color;
     float range;
+    vec3 color;
     float intensity;
 };
 
@@ -59,9 +59,7 @@ float microfacetDistribution(MaterialInfo materialInfo, float NdotH) {
     return alphaRoughnessSq / (M_PI * f * f);
 }
 
-vec3 calculateDirectionalLight(MaterialInfo materialInfo, vec3 normal, vec3 view) {
-    vec3 pointToLight = -LIGHT_DIRECTION;
-
+vec3 calculateLight(MaterialInfo materialInfo, vec3 normal, vec3 view, vec3 pointToLight, float intensity, vec3 color) {
     vec3 n = normalize(normal);           // Outward direction of surface point
     vec3 v = normalize(view);             // Direction from surface point to view
     vec3 l = normalize(pointToLight);     // Direction from surface point to light
@@ -78,15 +76,11 @@ vec3 calculateDirectionalLight(MaterialInfo materialInfo, vec3 normal, vec3 view
         vec3 diffuseContrib = (1.0 - F) * (materialInfo.diffuseColor / M_PI);
         vec3 specContrib = F * D;
 
-        return LIGHT_INTENSITY * LIGHT_COLOR * NdotL * (diffuseContrib + specContrib);
+        return intensity * color * NdotL * (diffuseContrib + specContrib);
     }
 
     return vec3(0.0);
 }
-
-// vec3 calculatePositionLight(MaterialInfo materialInfo, Light light, vec3 normal, vec3 view) {
-
-// }
 
 vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
     float NdotV = clamp(dot(n, v), 0.0, 1.0);
@@ -139,7 +133,7 @@ vec3 getNormal(ivec2 fragCoord) {
         vec4 tangentW = texelFetch(uTangentBuffer, fragCoord, 0);
         vec3 bitangentW = cross(normalW.xyz, tangentW.xyz) * tangentW.w;
         mat3 tangent = mat3(tangentW, bitangentW, normalW);
-        return normalize(tangent * normalMap);
+        return (tangent * normalMap);
     }
 
     return n.xyz;
@@ -159,19 +153,19 @@ void main() {
     vec3 normal = getNormal(fragCoord);
 
     vec3 view = normalize(data.eyePosition - position);
-    vec3 color = calculateDirectionalLight(materialInfo, normal, view);
+    vec3 color = vec3(0.0); // calculateLight(materialInfo, normal, view, -LIGHT_DIRECTION, LIGHT_INTENSITY, LIGHT_COLOR);
 
     for (int i = 0; i < LIGHT_COUNT; i ++) {
         Light light = data.lights[i];
         float distance = length(light.position - position);
-        float attenuation = max(min(1.0 - pow(distance / light.range, 4.0), 1.0), 0.0) / pow(distance, 2.0);
-        vec3 intensity = attenuation * light.intensity * light.color;
+        float attenuation = light.range / (distance * distance);
+        float intensity = attenuation * light.intensity;
 
-        // color += intensity;
+        color += calculateLight(materialInfo, normal, view, light.position - position, intensity, light.color);
     }
 
-    color += getIBLContribution(materialInfo, normal, view);
+    // color += getIBLContribution(materialInfo, normal, view);
     color = clamp(color, 0.0, 1.0);
 
-    fragColor = vec4(color, 1.0); // vec4(linearToSrgb(color), 1.0);
+    fragColor = vec4(linearToSrgb(color), 1.0);
 }

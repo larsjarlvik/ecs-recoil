@@ -140,9 +140,9 @@ export class GBuffer {
             const translation = vec3.create();
             mat4.getTranslation(translation, this.scene.root.transforms[keys[i]]);
             uniforms.push({
-                translation: { type: 'vec', value: translation },
-                color: { type: 'vec', value: this.scene.root.lights[keys[i]].color },
+                position: { type: 'vec', value: translation },
                 range: { type: 'float', value: this.scene.root.lights[keys[i]].range },
+                color: { type: 'vec', value: this.scene.root.lights[keys[i]].color },
                 intensity: { type: 'float', value: this.scene.root.lights[keys[i]].intensity },
             });
         }
