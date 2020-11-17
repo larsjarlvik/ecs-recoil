@@ -43,7 +43,6 @@ module.exports = {
     devServer: {
         publicPath: '/',
         contentBase: './static',
-        hot: true,
         stats: {
             children: false,
             modules: false,
