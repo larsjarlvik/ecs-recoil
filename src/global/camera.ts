@@ -39,6 +39,6 @@ export default class Camera {
         mat4.rotateX(this.modelView, this.modelView, this.rX);
         mat4.rotateY(this.modelView, this.modelView, this.rY);
 
-        mat4.perspective(this.projection, 45.0, viewport.width / viewport.height, 0.1, 100.0);
+        mat4.perspective(this.projection, 45.0, viewport.aspect, 0.1, 100.0);
     }
 }

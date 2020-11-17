@@ -128,8 +128,7 @@ void main() {
     vec4 depth = texelFetch(uDepthBuffer, fragCoord, 0);
 
     if (depth.x == 1.0) {
-        fragColor = vec4(0.0);
-        return;
+        discard; return;
     }
 
     MaterialInfo materialInfo = getMaterialInfo(fragCoord);

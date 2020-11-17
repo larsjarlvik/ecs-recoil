@@ -22,10 +22,6 @@ const scene = Scene.Instance;
 async function start() {
     const model = await loadModel('waterbottle/waterbottle');
 
-    const canvas = document.getElementById('gfx') as unknown as HTMLCanvasElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
     gl.enableVertexAttribArray(0);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);

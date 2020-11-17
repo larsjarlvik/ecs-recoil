@@ -2,10 +2,10 @@ import { mat4 } from 'gl-matrix';
 import { Model } from 'components/Model';
 import { Light } from 'components/Light';
 import { DefaultRenderer } from 'renderers/DefaultRenderer';
-import Viewport from 'global/viewport';
 import { GBuffer } from 'base/gbuffer';
 import { Environment, loadEnvironment } from 'base/environment';
 import { Fxaa } from 'base/fxaa';
+import Viewport from './viewport';
 import GL from './gl';
 
 const viewport = Viewport.Instance;
@@ -56,7 +56,7 @@ export default class Scene {
         // Render
         this.gBuffer.bind();
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.viewport(0, 0, viewport.width, viewport.height);
+        gl.viewport(0, 0, viewport.viewport.width, viewport.viewport.height);
         this.defaultRenderer.render();
 
         // Draw pass

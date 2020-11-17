@@ -1,18 +1,14 @@
 export default class Viewport {
     private static _instance: Viewport;
     public viewport: HTMLCanvasElement;
-    public width: number;
-    public height: number;
     public aspect: number;
     private resize: CustomEvent<unknown>;
 
     private setSize() {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
-        this.aspect = this.width / this.height;
-
-        this.viewport.width = this.width;
-        this.viewport.height = this.height;
+        const dpi = window.devicePixelRatio || 1;
+        this.viewport.width = window.innerWidth * dpi;
+        this.viewport.height = window.innerHeight * dpi;
+        this.aspect = this.viewport.width / this.viewport.height;
     }
 
     private constructor() {
