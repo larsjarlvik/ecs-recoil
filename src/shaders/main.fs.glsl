@@ -4,7 +4,7 @@ precision highp float;
 #define LIGHT_INTENSITY 4.0
 #define LIGHT_DIRECTION vec3(0.7, -0.7, -1.0)
 #define LIGHT_COLOR vec3(1.0)
-#define LIGHT_COUNT 2
+#define MAX_LIGHTS 10
 #define M_PI 3.141592653589793
 
 uniform sampler2D uPositionBuffer;
@@ -21,7 +21,8 @@ struct Light {
 
 uniform uData {
     vec3 eyePosition;
-    Light lights[LIGHT_COUNT];
+    float lightCount;
+    Light lights[MAX_LIGHTS];
 } data;
 
 out vec4 fragColor;
@@ -138,7 +139,7 @@ void main() {
     vec3 view = normalize(data.eyePosition - position);
     vec3 color = calculateLight(materialInfo, normal, view, -LIGHT_DIRECTION, LIGHT_INTENSITY, LIGHT_COLOR);
 
-    for (int i = 0; i < LIGHT_COUNT; i ++) {
+    for (int i = 0; i < int(data.lightCount); i ++) {
         Light light = data.lights[i];
         float distance = length(light.position - position);
         float attenuation = light.range / (distance * distance);

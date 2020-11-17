@@ -5,7 +5,8 @@ import * as shader from 'base/shader';
 import { createQuad, Quad } from 'models/quad';
 import { Environment } from './environment';
 import Scene from 'global/scene';
-import { UniformBuffer, UniformBufferWrapper } from './UniformBuffer';
+import { UniformBuffer, UniformBufferItem, UniformBufferWrapper } from './UniformBuffer';
+import { Settings } from 'settings';
 
 const gl = GL.Instance;
 const camera = Camera.Instance;
@@ -134,7 +135,7 @@ export class GBuffer {
             });
         }
 
-        return uniforms;
+        return { type: 'struct', value: uniforms, arrayLength: Settings.maxLights, size: 8 } as UniformBufferItem;
     }
 
     public render() {
@@ -143,7 +144,8 @@ export class GBuffer {
 
         this.uniformBuffer.set({
             eyePosition: { type: 'vec', value: camera.position },
-            lights: { type: 'struct', value: this.getLightBuffer() }
+            lightCount: { type: 'float', value: this.scene.root.lightCount },
+            lights: this.getLightBuffer(),
         });
 
         gl.activeTexture(gl.TEXTURE0);

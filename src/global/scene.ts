@@ -14,6 +14,7 @@ const gl = GL.Instance;
 export interface SceneRoot {
     models: { [key: string]: Model };
     lights: { [key: string]: Light }
+    lightCount: number;
     transforms: { [key: string]: mat4 }
 }
 
@@ -31,6 +32,7 @@ export default class Scene {
         this.root = {
             models: {},
             lights: {},
+            lightCount: 0,
             transforms: {},
         };
 

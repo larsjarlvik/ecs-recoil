@@ -8,6 +8,8 @@ type Type = 'float' | 'vec' | 'mat' | 'struct';
 export interface UniformBufferItem {
     type: Type;
     value: vec3 | vec4 | mat4 | number | UniformBuffer | UniformBuffer[];
+    size?: number;
+    arrayLength?: number;
 }
 
 export interface UniformBuffer {
@@ -54,6 +56,10 @@ export class UniformBufferWrapper {
                 case 'struct':
                     this.pad((item.value as []).length);
                     for (let i = 0; i < (item.value as []).length; i ++) this.build(item.value[i]);
+                    if (item.arrayLength && item.size) {
+                        const pad = item.size * (item.arrayLength - (item.value as []).length);
+                        if (pad > 0) this.serializedData.push(...(new Array(pad)));
+                    }
                     break;
             }
         }
