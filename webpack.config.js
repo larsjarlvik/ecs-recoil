@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
@@ -39,12 +40,15 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({ template: './index.html' }),
-        new CopyPlugin({ patterns: [
-            { from: 'static', to: '.' },
-        ]}),
+        new CopyPlugin({ patterns: [{ from: 'static', to: '.' }] }),
+        new webpack.HotModuleReplacementPlugin(),
     ],
     performance: { hints: false },
+    infrastructureLogging: {
+        level: 'error',
+    },
     devServer: {
+        hot: true,
         publicPath: '/',
         contentBase: './static',
         stats: {

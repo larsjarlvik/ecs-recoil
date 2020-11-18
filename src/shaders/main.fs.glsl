@@ -86,9 +86,6 @@ vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
     vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
 
     vec2 brdf = texture(uBrdfLut, brdfSamplePoint).rg;
-    vec4 diffuseSample = vec4(0.1, 0.1, 0.1, 1.0);
-    vec4 specularSample = vec4(0.3);
-
     vec3 diffuseLight = srgbToLinear(texture(uEnvironmentDiffuse, n)).rgb;
     vec3 specularLight = srgbToLinear(texture(uEnvironmentSpecular, n)).rgb;
 
@@ -101,7 +98,7 @@ vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
 MaterialInfo getMaterialInfo(ivec2 fragCoord) {
     vec3 f0 = vec3(0.04);
 
-    float perceptualRoughness = 1.0;
+    float perceptualRoughness = 0.8;
     float metallic = 1.0;
 
     vec4 baseColor = srgbToLinear(texelFetch(uBaseColor, fragCoord, 0));
