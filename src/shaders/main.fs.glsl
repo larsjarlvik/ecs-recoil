@@ -1,7 +1,7 @@
 #version 300 es
 precision mediump float;
 
-#define LIGHT_INTENSITY 0.0
+#define LIGHT_INTENSITY 4.0
 #define LIGHT_DIRECTION vec3(0.7, -0.7, -1.0)
 #define LIGHT_COLOR vec3(1.0)
 #define MAX_LIGHTS 10
