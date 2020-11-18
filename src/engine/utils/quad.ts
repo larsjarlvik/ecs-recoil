@@ -1,4 +1,4 @@
-import GL from 'global/gl';
+import GL from 'engine/gl';
 
 const gl = GL.Instance;
 

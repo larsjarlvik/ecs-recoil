@@ -1,7 +1,7 @@
 import { System } from 'ecsy';
 import { mat4 } from 'gl-matrix';
-import Scene from 'global/scene';
-import { Transform } from 'components/Transform';
+import { Transform } from 'ecs/components/Transform';
+import Scene from 'scene';
 
 const scene = Scene.Instance;
 

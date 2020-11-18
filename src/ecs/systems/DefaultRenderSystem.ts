@@ -1,8 +1,9 @@
 import { System } from 'ecsy';
 import { mat4 } from 'gl-matrix';
-import { Renderable } from 'components/TagComponents';
-import { Model } from 'components/Model';
-import Scene from 'global/scene';
+import { Renderable } from 'ecs/components/TagComponents';
+import { Model } from 'ecs/components/Model';
+import Scene from 'scene';
+
 
 const scene = Scene.Instance;
 

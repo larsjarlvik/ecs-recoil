@@ -1,8 +1,13 @@
-import GL from 'global/gl';
+import GL from 'engine/gl';
 
 const gl = GL.Instance;
 
-const compileShader = (content: string, type: number) => {
+enum ShaderType {
+    Vertex = gl.VERTEX_SHADER,
+    Fragment = gl.FRAGMENT_SHADER,
+}
+
+const attachShader = (shaderProgram: WebGLProgram, content: string, type: ShaderType) => {
     const shader = gl.createShader(type);
     if (shader === null) throw new Error('gl.createShader returned null!');
 
@@ -16,8 +21,7 @@ const compileShader = (content: string, type: number) => {
         console.error(gl.getShaderInfoLog(shader));
         console.error(`${content.split('\n')[line - 2]}\n${content.split('\n')[line - 1]}\n${content.split('\n')[line]}`);
     }
-
-    return shader;
+    gl.attachShader(shaderProgram, shader);
 };
 
 const createProgram = () => {
@@ -37,7 +41,8 @@ const linkProgram = (program: WebGLProgram) => {
 };
 
 export {
-    compileShader,
+    attachShader,
     createProgram,
     linkProgram,
+    ShaderType,
 };

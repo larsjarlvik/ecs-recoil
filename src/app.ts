@@ -1,34 +1,23 @@
 
 import { World } from 'ecsy';
 import { vec3 } from 'gl-matrix';
-import GL from 'global/gl';
-import Camera from 'global/camera';
-import Scene from 'global/scene';
-import { Model } from 'components/Model';
-import { Light } from 'components/Light';
-import { Transform } from 'components/Transform';
-import { Renderable, Spin } from 'components/TagComponents';
-import { DefaultRenderSystem } from 'systems/DefaultRenderSystem';
-import { SpinnerSystem } from 'systems/SpinnerSystem';
-import { loadModel } from 'models/gltf';
-import { Settings } from 'settings';
-import { LightSystem } from 'systems/LightSystem';
-import { TransformSystem } from 'systems/TransformSystem';
+import Camera from 'camera';
+import Scene from 'scene';
+import { Model } from 'ecs/components/Model';
+import { Light } from 'ecs/components/Light';
+import { Transform } from 'ecs/components/Transform';
+import { Renderable, Spin } from 'ecs/components/TagComponents';
+import { DefaultRenderSystem } from 'ecs/systems/DefaultRenderSystem';
+import { SpinnerSystem } from 'ecs/systems/SpinnerSystem';
+import { LightSystem } from 'ecs/systems/LightSystem';
+import { TransformSystem } from 'ecs/systems/TransformSystem';
+import * as engine from 'engine';
 
-const gl = GL.Instance;
 const camera = Camera.Instance;
 const scene = Scene.Instance;
 
 async function start() {
-    const model = await loadModel('waterbottle/waterbottle');
-
-    gl.enableVertexAttribArray(0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
-    gl.cullFace(gl.BACK);
-    gl.frontFace(gl.CCW);
-    gl.clearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2], Settings.clearColor[3]);
+    const model = await engine.gltf.loadModel('waterbottle/waterbottle');
 
     const world = new World()
         .registerComponent(Model)

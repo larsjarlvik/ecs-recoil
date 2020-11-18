@@ -1,4 +1,5 @@
-import GL from 'global/gl';
+import { image } from 'engine';
+import GL from 'engine/gl';
 
 const gl = GL.Instance;
 
@@ -7,16 +8,6 @@ export interface Environment {
     specular: WebGLTexture;
     brdfLut: WebGLTexture;
 }
-
-const getImage = async (uri: string) => {
-    return new Promise<HTMLImageElement>(resolve => {
-        const img = new Image();
-        img.onload = () => {
-            resolve(img);
-        };
-        img.src = uri;
-    });
-};
 
 const createCubeMap = (textures: HTMLImageElement[]) => {
     const cubeMap = gl.createTexture();
@@ -30,15 +21,11 @@ const createCubeMap = (textures: HTMLImageElement[]) => {
     return cubeMap;
 };
 
-export const loadEnvironment = async (): Promise<Environment> => {
-    const names = ['right', 'left', 'top', 'bottom', 'front', 'back'];
-    const diffuseTextures = await Promise.all(names.map(n => getImage(`environment/diffuse_${n}.jpg`)));
-    const specularTextures = await Promise.all(names.map(n => getImage(`environment/specular_${n}.jpg`)));
-
+export const loadEnvironment = async (diffuseTextures: HTMLImageElement[], specularTextures: HTMLImageElement[]): Promise<Environment> => {
     const diffuse = createCubeMap(diffuseTextures);
     const specular = createCubeMap(specularTextures);
 
-    const brdfLutTexture = await getImage('environment/brdf_lut.png');
+    const brdfLutTexture = await image.load('environment/brdf_lut.png');
     const brdfLut = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, brdfLut);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, brdfLutTexture);

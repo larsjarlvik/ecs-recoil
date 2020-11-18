@@ -1,16 +1,14 @@
 import { mat4, vec3 } from 'gl-matrix';
-import GL from 'global/gl';
-import Camera from 'global/camera';
-import * as shader from 'base/shader';
-import { createQuad, Quad } from 'models/quad';
-import { Environment } from './environment';
-import Scene from 'global/scene';
-import { UniformBuffer, UniformBufferItem, UniformBufferWrapper } from './UniformBuffer';
-import { Settings } from 'settings';
+import Scene from 'scene';
+import Camera from 'camera';
+import settings from 'settings';
+import GL from 'engine/gl';
+import * as shader from 'engine/utils/shader';
+import { createQuad, Quad } from 'engine/utils/quad';
+import { UniformBuffer, UniformBufferItem, UniformBufferWrapper } from 'engine/utils/UniformBuffer';
+import { Environment } from 'engine/utils/environment';
 
 const gl = GL.Instance;
-const camera = Camera.Instance;
-
 
 export class GBuffer {
     scene: Scene;
@@ -23,20 +21,10 @@ export class GBuffer {
     depthTarget: WebGLTexture | null;
     baseColorTarget: WebGLTexture | null;
 
-    positionLocation: WebGLUniformLocation;
-    normalLocation: WebGLUniformLocation;
-    depthLocation: WebGLUniformLocation;
-    baseColorLocation: WebGLUniformLocation;
-
-    brfdLutLocation: WebGLUniformLocation;
-    diffuseLocation: WebGLUniformLocation;
-    specularLocation: WebGLUniformLocation;
-
     eyePosition: WebGLUniformLocation;
 
     uniformBuffer: UniformBufferWrapper;
     renderQuad: Quad;
-    environment: Environment;
 
     private createBufferTexture(internalFormat: number, attachment: number) {
         gl.getExtension('EXT_color_buffer_float');
@@ -61,25 +49,24 @@ export class GBuffer {
         this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT24, gl.DEPTH_ATTACHMENT);
     }
 
-    constructor(scene: Scene, environment: Environment) {
+    constructor(scene: Scene) {
         this.scene = scene;
         this.renderQuad = createQuad();
-        this.environment = environment;
 
         this.shaderProgram = shader.createProgram();
-        gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/main.vs.glsl'), gl.VERTEX_SHADER));
-        gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/main.fs.glsl'), gl.FRAGMENT_SHADER));
+        shader.attachShader(this.shaderProgram, require('shaders/main.vs.glsl'), gl.VERTEX_SHADER);
+        shader.attachShader(this.shaderProgram, require('shaders/main.fs.glsl'), gl.FRAGMENT_SHADER);
         shader.linkProgram(this.shaderProgram);
 
         gl.useProgram(this.shaderProgram);
 
-        this.positionLocation = gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!;
-        this.normalLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!;
-        this.depthLocation = gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!;
-        this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
-        this.brfdLutLocation = gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!;
-        this.diffuseLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!;
-        this.specularLocation = gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!;
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!, 0);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!, 1);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!, 2);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!, 3);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!, 4);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!, 5);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!, 6);
 
         this.uniformBuffer = new UniformBufferWrapper(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
@@ -94,15 +81,6 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT1,
             gl.COLOR_ATTACHMENT2,
         ]);
-
-        gl.uniform1i(this.positionLocation, 0);
-        gl.uniform1i(this.normalLocation, 1);
-        gl.uniform1i(this.baseColorLocation, 2);
-        gl.uniform1i(this.depthLocation, 3);
-
-        gl.uniform1i(this.brfdLutLocation, 4);
-        gl.uniform1i(this.diffuseLocation, 5);
-        gl.uniform1i(this.specularLocation, 6);
 
         this.unbind();
 
@@ -135,10 +113,10 @@ export class GBuffer {
             });
         }
 
-        return { type: 'struct', value: uniforms, arrayLength: Settings.maxLights, size: 8 } as UniformBufferItem;
+        return { type: 'struct', value: uniforms, arrayLength: settings.maxLights, size: 8 } as UniformBufferItem;
     }
 
-    public render() {
+    public render(camera: Camera, environment: Environment) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(this.shaderProgram);
 
@@ -158,11 +136,11 @@ export class GBuffer {
         gl.bindTexture(gl.TEXTURE_2D, this.depthTarget);
 
         gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, this.environment.brdfLut);
+        gl.bindTexture(gl.TEXTURE_2D, environment.brdfLut);
         gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.diffuse);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, environment.diffuse);
         gl.activeTexture(gl.TEXTURE6);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.environment.specular);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, environment.specular);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);

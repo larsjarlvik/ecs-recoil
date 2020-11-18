@@ -1,5 +1,5 @@
 import { mat4, vec3, vec4 } from 'gl-matrix';
-import GL from 'global/gl';
+import GL from 'engine/gl';
 
 const gl = GL.Instance;
 

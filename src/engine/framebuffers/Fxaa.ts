@@ -1,6 +1,6 @@
-import GL from 'global/gl';
-import * as shader from 'base/shader';
-import { createQuad, Quad } from 'models/quad';
+import GL from 'engine/gl';
+import * as shader from 'engine/utils/shader';
+import { createQuad, Quad } from 'engine/utils/quad';
 
 const gl = GL.Instance;
 
@@ -8,7 +8,6 @@ export class Fxaa {
     renderQuad: Quad;
     shaderProgram: WebGLProgram;
     resolutionLocation: WebGLUniformLocation;
-    colorLocation: WebGLUniformLocation;
     frameBuffer: WebGLFramebuffer;
     colorTarget: WebGLTexture | null;
 
@@ -30,16 +29,15 @@ export class Fxaa {
         this.renderQuad = createQuad();
 
         this.shaderProgram = shader.createProgram();
-        gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/fxaa.vs.glsl'), gl.VERTEX_SHADER));
-        gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/fxaa.fs.glsl'), gl.FRAGMENT_SHADER));
+        shader.attachShader(this.shaderProgram, require('shaders/fxaa.vs.glsl'), gl.VERTEX_SHADER);
+        shader.attachShader(this.shaderProgram, require('shaders/fxaa.fs.glsl'), gl.FRAGMENT_SHADER);
         shader.linkProgram(this.shaderProgram);
 
         gl.useProgram(this.shaderProgram);
 
         this.resolutionLocation = gl.getUniformLocation(this.shaderProgram, 'uResolution')!;
-        this.colorLocation = gl.getUniformLocation(this.shaderProgram, 'uColor')!;
 
-        gl.uniform1i(this.colorLocation, 0);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uColor')!, 0);
         gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
         this.frameBuffer = gl.createFramebuffer()!;

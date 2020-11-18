@@ -1,36 +1,31 @@
-import GL from 'global/gl';
-import Camera from 'global/camera';
-import Scene from 'global/scene';
-import * as shader from 'base/shader';
-import { UniformBufferWrapper } from 'base/UniformBuffer';
+import GL from 'engine/gl';
+import Scene from 'scene';
+import { UniformBufferWrapper } from 'engine/utils/UniformBuffer';
+import Camera from 'camera';
+import { shader, ShaderType } from 'engine';
 
 const gl = GL.Instance;
-const camera = Camera.Instance;
 
 export class DefaultRenderer {
     private shaderProgram: WebGLProgram;
     private uniformBuffer: UniformBufferWrapper;
-    private baseColorLocation: WebGLUniformLocation;
-    private normalMapLocation: WebGLUniformLocation;
     private scene: Scene;
 
     constructor(scene: Scene) {
         this.scene = scene;
         this.shaderProgram = shader.createProgram();
-        gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/default.vs.glsl'), gl.VERTEX_SHADER));
-        gl.attachShader(this.shaderProgram, shader.compileShader(require('shaders/default.fs.glsl'), gl.FRAGMENT_SHADER));
+        shader.attachShader(this.shaderProgram, require('shaders/default.vs.glsl'), ShaderType.Vertex);
+        shader.attachShader(this.shaderProgram, require('shaders/default.fs.glsl'), ShaderType.Fragment);
         shader.linkProgram(this.shaderProgram);
 
         this.uniformBuffer = new UniformBufferWrapper(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
-        this.baseColorLocation = gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!;
-        this.normalMapLocation = gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!;
-
-        gl.uniform1i(this.baseColorLocation, 0);
-        gl.uniform1i(this.normalMapLocation, 1);
+        gl.useProgram(this.shaderProgram);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!, 0);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!, 1);
     }
 
-    public render() {
+    public render(camera: Camera) {
         gl.useProgram(this.shaderProgram);
         gl.enableVertexAttribArray(1);
         gl.enableVertexAttribArray(2);

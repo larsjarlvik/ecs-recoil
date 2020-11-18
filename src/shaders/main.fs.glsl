@@ -1,5 +1,5 @@
 #version 300 es
-precision highp float;
+precision mediump float;
 
 #define LIGHT_INTENSITY 4.0
 #define LIGHT_DIRECTION vec3(0.7, -0.7, -1.0)

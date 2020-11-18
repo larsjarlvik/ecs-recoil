@@ -1,6 +1,6 @@
 import * as gltf from 'webgl-gltf';
-import GL from 'global/gl';
-import { Model } from 'components/Model';
+import GL from 'engine/gl';
+import { Model } from 'ecs/components/Model';
 
 const gl = GL.Instance;
 

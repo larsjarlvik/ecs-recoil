@@ -1,8 +1,8 @@
 import { System } from 'ecsy';
 import { mat4 } from 'gl-matrix';
-import Scene from 'global/scene';
-import { Light } from 'components/Light';
-import { Settings } from 'settings';
+import settings from 'settings';
+import Scene from 'scene';
+import { Light } from 'ecs/components/Light';
 
 const scene = Scene.Instance;
 
@@ -18,7 +18,7 @@ export class LightSystem extends System {
             const light = entity.getComponent(Light)!;
             const ids = Object.keys(scene.root.lights);
 
-            if (ids.length >= Settings.maxLights) {
+            if (ids.length >= settings.maxLights) {
                 this.deleteLight(parseInt(ids[0]));
             }
 
