@@ -10,6 +10,10 @@ uniform uData {
     mat4 modelView;
     mat4 projection;
     mat4 transform;
+    float hasNormalMap;
+    float hasOrmTexture;
+    float metallic;
+    float roughness;
 } data;
 
 out vec4 vertPosition;

@@ -22,7 +22,8 @@ export class DefaultRenderer {
 
         gl.useProgram(this.shaderProgram);
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!, 0);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!, 1);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uOrm')!, 1);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalMap')!, 2);
     }
 
     public render(camera: Camera) {
@@ -38,11 +39,17 @@ export class DefaultRenderer {
                 modelView: { type: 'mat', value: camera.modelView },
                 projection: { type: 'mat', value: camera.projection },
                 transform: { type: 'mat', value: this.scene.root.transforms[key] },
+                hasNormalMap: { type: 'float', value: model.normalTexture !== null ? 1.0 : 0.0 },
+                hasOrmTexture: { type: 'float', value: model.ormTexture !== null ? 1.0 : 0.0 },
+                metallic: { type: 'float', value: 0.5 },
+                roughness: { type: 'float', value: 1.0 },
             });
 
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, model.baseColorTexture);
             gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, model.ormTexture);
+            gl.activeTexture(gl.TEXTURE2);
             gl.bindTexture(gl.TEXTURE_2D, model.normalTexture);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);

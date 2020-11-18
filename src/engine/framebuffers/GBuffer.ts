@@ -18,8 +18,9 @@ export class GBuffer {
     shaderProgram: WebGLProgram;
     positionTarget: WebGLTexture | null;
     normalTarget: WebGLTexture | null;
-    depthTarget: WebGLTexture | null;
     baseColorTarget: WebGLTexture | null;
+    ormTarget: WebGLTexture | null;
+    depthTarget: WebGLTexture | null;
 
     eyePosition: WebGLUniformLocation;
 
@@ -46,6 +47,7 @@ export class GBuffer {
         this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
         this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
         this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
+        this.ormTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
         this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT24, gl.DEPTH_ATTACHMENT);
     }
 
@@ -63,10 +65,11 @@ export class GBuffer {
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!, 0);
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!, 1);
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!, 2);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!, 3);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!, 4);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!, 5);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!, 6);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uOrmBuffer')!, 3);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!, 4);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!, 5);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uEnvironmentDiffuse')!, 6);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uEnvironmentSpecular')!, 7);
 
         this.uniformBuffer = new UniformBufferWrapper(gl.getUniformBlockIndex(this.shaderProgram, 'uData'));
 
@@ -80,6 +83,7 @@ export class GBuffer {
             gl.COLOR_ATTACHMENT0,
             gl.COLOR_ATTACHMENT1,
             gl.COLOR_ATTACHMENT2,
+            gl.COLOR_ATTACHMENT3,
         ]);
 
         this.unbind();
@@ -133,13 +137,15 @@ export class GBuffer {
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
         gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, this.ormTarget);
+        gl.activeTexture(gl.TEXTURE4);
         gl.bindTexture(gl.TEXTURE_2D, this.depthTarget);
 
-        gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, environment.brdfLut);
         gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, environment.diffuse);
+        gl.bindTexture(gl.TEXTURE_2D, environment.brdfLut);
         gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, environment.diffuse);
+        gl.activeTexture(gl.TEXTURE7);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, environment.specular);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderQuad.vertexBuffer);

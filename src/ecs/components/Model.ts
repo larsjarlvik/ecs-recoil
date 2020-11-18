@@ -7,7 +7,10 @@ export class Model extends Component<Model> {
     uvBuffer: WebGLBuffer;
     indexBuffer: WebGLBuffer;
     baseColorTexture: WebGLTexture;
-    normalTexture: WebGLTexture;
+    ormTexture: WebGLTexture | null;
+    normalTexture: WebGLTexture | null;
+    hasOrmTexture: boolean;
+    hasNormalTexture: boolean;
     length: number;
 }
 
@@ -18,6 +21,9 @@ Model.schema = {
     uvBuffer: { type: Types.Ref },
     indexBuffer: { type: Types.Ref },
     baseColorTexture: { type: Types.Ref },
+    ormTexture: { type: Types.Ref },
     normalTexture: { type: Types.Ref },
+    hasOrmTexture: { type: Types.Boolean },
+    hasNormalTexture: { type: Types.Boolean },
     length: { type: Types.Number },
 };

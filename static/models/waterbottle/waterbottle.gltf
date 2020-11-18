@@ -85,22 +85,10 @@
       "uri": "base-color.png"
     },
     {
-      "uri": "metallic-roughness.png"
+      "uri": "orm.png"
     },
     {
       "uri": "normal.png"
-    },
-    {
-      "uri": "emissive.png"
-    },
-    {
-      "uri": "occlusion.png"
-    },
-    {
-      "uri": "WaterBottle_diffuse.png"
-    },
-    {
-      "uri": "WaterBottle_specularGlossiness.png"
     }
   ],
   "meshes": [
@@ -133,17 +121,11 @@
       "normalTexture": {
         "index": 2
       },
-      "occlusionTexture": {
-        "index": 4
-      },
       "emissiveFactor": [
         1.0,
         1.0,
         1.0
       ],
-      "emissiveTexture": {
-        "index": 3
-      },
       "name": "BottleMat",
       "extensions": {
         "KHR_materials_pbrSpecularGlossiness": {

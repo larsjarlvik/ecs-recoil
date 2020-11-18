@@ -1,7 +1,7 @@
 #version 300 es
 precision mediump float;
 
-#define LIGHT_INTENSITY 4.0
+#define LIGHT_INTENSITY 0.0
 #define LIGHT_DIRECTION vec3(0.7, -0.7, -1.0)
 #define LIGHT_COLOR vec3(1.0)
 #define MAX_LIGHTS 10
@@ -9,6 +9,7 @@ precision mediump float;
 
 uniform sampler2D uPositionBuffer;
 uniform sampler2D uNormalBuffer;
+uniform sampler2D uOrmBuffer;
 uniform sampler2D uDepthBuffer;
 uniform sampler2D uBaseColor;
 
@@ -83,11 +84,12 @@ vec3 calculateLight(MaterialInfo materialInfo, vec3 normal, vec3 view, vec3 poin
 
 vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
     float NdotV = clamp(dot(n, v), 0.0, 1.0);
-    vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
 
+    vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
     vec2 brdf = texture(uBrdfLut, brdfSamplePoint).rg;
-    vec3 diffuseLight = srgbToLinear(texture(uEnvironmentDiffuse, n)).rgb;
-    vec3 specularLight = srgbToLinear(texture(uEnvironmentSpecular, n)).rgb;
+
+    vec3 diffuseLight = srgbToLinear(texture(uEnvironmentDiffuse, n)).rgb * 0.7;
+    vec3 specularLight = srgbToLinear(texture(uEnvironmentSpecular, n)).rgb * 0.2;
 
     vec3 diffuse = diffuseLight * materialInfo.diffuseColor;
     vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);
@@ -95,11 +97,11 @@ vec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v) {
     return diffuse + specular;
 }
 
-MaterialInfo getMaterialInfo(ivec2 fragCoord) {
+MaterialInfo getMaterialInfo(ivec2 fragCoord, vec3 orm) {
     vec3 f0 = vec3(0.04);
 
-    float perceptualRoughness = 0.8;
-    float metallic = 1.0;
+    float perceptualRoughness = orm.g;
+    float metallic = orm.b;
 
     vec4 baseColor = srgbToLinear(texelFetch(uBaseColor, fragCoord, 0));
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * (1.0 - metallic);
@@ -128,9 +130,11 @@ void main() {
         discard; return;
     }
 
-    MaterialInfo materialInfo = getMaterialInfo(fragCoord);
     vec3 position = texelFetch(uPositionBuffer, fragCoord, 0).xyz;
     vec3 normal = texelFetch(uNormalBuffer, fragCoord, 0).xyz;
+    vec3 orm = texelFetch(uOrmBuffer, fragCoord, 0).xyz;
+
+    MaterialInfo materialInfo = getMaterialInfo(fragCoord, orm);
 
     vec3 view = normalize(data.eyePosition - position);
     vec3 color = calculateLight(materialInfo, normal, view, -LIGHT_DIRECTION, LIGHT_INTENSITY, LIGHT_COLOR);
@@ -146,6 +150,7 @@ void main() {
 
     color += getIBLContribution(materialInfo, normal, view);
     color = clamp(color, 0.0, 1.0);
+    color = mix(color, color * orm.r, 1.0);
 
     fragColor = vec4(linearToSrgb(color), 1.0);
 }
