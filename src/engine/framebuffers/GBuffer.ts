@@ -44,9 +44,9 @@ export class GBuffer {
     }
 
     private createBufferTextures() {
-        this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
-        this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
-        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
+        this.baseColorTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT0);
+        this.positionTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT1);
+        this.normalTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT2);
         this.ormTarget = this.createBufferTexture(gl.RGBA16F, gl.COLOR_ATTACHMENT3);
         this.depthTarget = this.createBufferTexture(gl.DEPTH_COMPONENT24, gl.DEPTH_ATTACHMENT);
     }
@@ -62,9 +62,9 @@ export class GBuffer {
 
         gl.useProgram(this.shaderProgram);
 
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!, 0);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!, 1);
-        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!, 2);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBaseColor')!, 0);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uPositionBuffer')!, 1);
+        gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uNormalBuffer')!, 2);
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uOrmBuffer')!, 3);
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uDepthBuffer')!, 4);
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uBrdfLut')!, 5);
@@ -131,11 +131,11 @@ export class GBuffer {
         });
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
-        gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this.baseColorTarget);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.positionTarget);
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, this.normalTarget);
         gl.activeTexture(gl.TEXTURE3);
         gl.bindTexture(gl.TEXTURE_2D, this.ormTarget);
         gl.activeTexture(gl.TEXTURE4);

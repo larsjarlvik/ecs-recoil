@@ -19,9 +19,9 @@ uniform uData {
     float roughness;
 } data;
 
-layout(location = 0) out vec4 fragPosition;
-layout(location = 1) out vec3 fragNormal;
-layout(location = 2) out vec4 fragBaseColor;
+layout(location = 0) out vec4 fragBaseColor;
+layout(location = 1) out vec4 fragPosition;
+layout(location = 2) out vec3 fragNormal;
 layout(location = 3) out vec3 fragOrm;
 
 void main(void) {
@@ -31,8 +31,8 @@ void main(void) {
         normal = normalize(vertTangent * (2.0 * normal - 1.0));
     }
 
+    fragBaseColor = texture(uBaseColor, vertUv);
     fragPosition = vertPosition;
     fragNormal = normal;
-    fragBaseColor = texture(uBaseColor, vertUv);
     fragOrm = data.hasOrmTexture == 1.0 ? texture(uOrm, vertUv).xyz : vec3(1.0, data.metallic, data.roughness);
 }
