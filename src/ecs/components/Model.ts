@@ -11,6 +11,8 @@ export class Model extends Component<Model> {
     normalTexture: WebGLTexture | null;
     hasOrmTexture: boolean;
     hasNormalTexture: boolean;
+    metallicFactor: number;
+    roughnessFactor: number;
     length: number;
 }
 
@@ -25,5 +27,7 @@ Model.schema = {
     normalTexture: { type: Types.Ref },
     hasOrmTexture: { type: Types.Boolean },
     hasNormalTexture: { type: Types.Boolean },
+    metallicFactor: { type: Types.Number },
+    roughnessFactor: { type: Types.Number },
     length: { type: Types.Number },
 };

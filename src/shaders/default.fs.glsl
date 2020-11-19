@@ -31,8 +31,14 @@ void main(void) {
         normal = normalize(vertTangent * (2.0 * normal - 1.0));
     }
 
+    vec3 orm = vec3(1.0, data.metallic, data.roughness);
+    if (data.hasOrmTexture == 1.0) {
+        vec3 ormTexture = texture(uOrm, vertUv).xyz;
+        orm = vec3(ormTexture.r, ormTexture.g * data.metallic, ormTexture.b * data.roughness);
+    }
+
     fragBaseColor = texture(uBaseColor, vertUv);
     fragPosition = vertPosition;
     fragNormal = normal;
-    fragOrm = data.hasOrmTexture == 1.0 ? texture(uOrm, vertUv).xyz : vec3(1.0, data.metallic, data.roughness);
+    fragOrm = orm;
 }

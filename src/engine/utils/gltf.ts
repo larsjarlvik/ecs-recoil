@@ -18,6 +18,8 @@ export const loadModel = async (path: string) => {
         normalTexture: model.materials[0].normalTexture,
         hasNormalTexture: model.materials[0].normalTexture != null,
         hasOrmTexture: model.materials[0].metallicRoughnessTexture != null,
+        metallicFactor: model.materials[0].metallicFactor,
+        roughnessFactor: model.materials[0].roughnessFactor,
         length: model.meshes[0].elementCount,
     } as Model;
 };

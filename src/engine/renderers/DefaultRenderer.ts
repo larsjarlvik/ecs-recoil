@@ -41,8 +41,8 @@ export class DefaultRenderer {
                 transform: { type: 'mat', value: this.scene.root.transforms[key] },
                 hasNormalMap: { type: 'float', value: model.normalTexture !== null ? 1.0 : 0.0 },
                 hasOrmTexture: { type: 'float', value: model.ormTexture !== null ? 1.0 : 0.0 },
-                metallic: { type: 'float', value: 0.5 },
-                roughness: { type: 'float', value: 1.0 },
+                metallic: { type: 'float', value: model.metallicFactor },
+                roughness: { type: 'float', value: model.roughnessFactor },
             });
 
             gl.activeTexture(gl.TEXTURE0);
