@@ -13,21 +13,11 @@ varying vec2 resolution;
 void main(void) {
     gl_FragColor = FxaaPixelShader(
         fragCoord,
-        vec4(0.0),
-        uColor,
-        uColor,
         uColor,
         resolution,
-        vec4(0.0),
-        vec4(0.0),
-        vec4(0.0),
         0.75,
         0.166,
-        0.0833,
-        0.0,
-        0.0,
-        0.0,
-        vec4(0.0)
+        0.0833
     );
 
     gl_FragColor.a = texture2D(uColor, fragCoord).a;
