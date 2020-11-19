@@ -14,3 +14,6 @@ export * as screen from './utils/screen';
 
 export const viewport = Viewport.Instance;
 export { DefaultRenderer } from './renderers/DefaultRenderer';
+export { TextRenderer } from './renderers/TextRenderer';
+
+export * as text from './utils/text';

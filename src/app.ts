@@ -1,16 +1,18 @@
 
 import { World } from 'ecsy';
-import { vec3 } from 'gl-matrix';
+import { vec3, vec4 } from 'gl-matrix';
 import Camera from 'camera';
 import Scene from 'scene';
 import { Model } from 'ecs/components/Model';
 import { Light } from 'ecs/components/Light';
 import { Transform } from 'ecs/components/Transform';
 import { Renderable, Spin } from 'ecs/components/TagComponents';
+import { Text } from 'ecs/components/Text';
 import { DefaultRenderSystem } from 'ecs/systems/DefaultRenderSystem';
 import { SpinnerSystem } from 'ecs/systems/SpinnerSystem';
 import { LightSystem } from 'ecs/systems/LightSystem';
 import { TransformSystem } from 'ecs/systems/TransformSystem';
+import { UiSystem } from 'ecs/systems/UiSystem';
 import * as engine from 'engine';
 
 const camera = Camera.Instance;
@@ -25,10 +27,12 @@ async function start() {
         .registerComponent(Renderable)
         .registerComponent(Spin)
         .registerComponent(Light)
+        .registerComponent(Text)
         .registerSystem(TransformSystem)
         .registerSystem(SpinnerSystem)
         .registerSystem(DefaultRenderSystem)
-        .registerSystem(LightSystem);
+        .registerSystem(LightSystem)
+        .registerSystem(UiSystem);
 
     world.createEntity('waterbottle')
         .addComponent(Model, model)
@@ -49,6 +53,9 @@ async function start() {
     world.createEntity('myFirstLight2')
         .addComponent(Transform, { translation: vec3.fromValues(-0.5, 0.0, 0.0) })
         .addComponent(Light, { color: vec3.fromValues(0.0, 1.0, 0.0), range: 1.5, intensity: 0.5 });
+
+    world.createEntity('test')
+        .addComponent(Text, { value: 'hej hej hej hej hej', color: vec4.fromValues(0.0, 0.0, 0.0, 1.0), buffer: 0.2, size: 26, gamma: 1.0 });
 
     let lastTime = performance.now();
 

@@ -1,5 +1,5 @@
 const settings = Object.freeze({
-    clearColor: [0.0, 0.0, 0.0, 1.0],
+    clearColor: [0.2, 0.2, 0.2, 1.0],
     maxLights: 10,
 });
 

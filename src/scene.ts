@@ -1,17 +1,29 @@
 import { mat4 } from 'gl-matrix';
 import { Model } from 'ecs/components/Model';
 import { Light } from 'ecs/components/Light';
+import { Text } from 'ecs/components/Text';
 import { Environment, loadEnvironment } from 'engine/utils/environment';
 import * as engine from 'engine';
 import Camera from './camera';
+import { TextBuffer } from 'engine/utils/text';
 
 const camera = Camera.Instance;
 
+export interface SceneText {
+    buffers: TextBuffer;
+    data: Text;
+}
+
+export interface SceneUi {
+    texts: { [key: string ]: SceneText };
+}
+
 export interface SceneRoot {
     models: { [key: string]: Model };
-    lights: { [key: string]: Light }
+    lights: { [key: string]: Light };
     lightCount: number;
-    transforms: { [key: string]: mat4 }
+    transforms: { [key: string]: mat4 };
+    ui: SceneUi;
 }
 
 export default class Scene {
@@ -22,14 +34,19 @@ export default class Scene {
     private gBuffer: engine.GBuffer;
     private isReady = false;
     private defaultRenderer: engine.DefaultRenderer;
+    private textRenderer: engine.TextRenderer;
 
     private constructor() {
         this.defaultRenderer = new engine.DefaultRenderer(this);
+        this.textRenderer = new engine.TextRenderer(this);
         this.root = {
             models: {},
             lights: {},
             lightCount: 0,
             transforms: {},
+            ui: {
+                texts: {},
+            },
         };
 
         this.init();
@@ -48,10 +65,14 @@ export default class Scene {
         this.fxaa = new engine.Fxaa();
         this.gBuffer = new engine.GBuffer(this);
         this.isReady = true;
+
+        await this.textRenderer.init();
     }
 
     public render() {
         if (!this.isReady) return;
+
+        camera.perspective();
 
         // Render
         this.gBuffer.bind();
@@ -64,5 +85,10 @@ export default class Scene {
 
         // Draw to screen
         this.fxaa.render();
+
+        // UI
+        engine.screen.clearScreen();
+        camera.ortho();
+        this.textRenderer.render();
     }
 }

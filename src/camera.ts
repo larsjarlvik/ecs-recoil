@@ -36,7 +36,13 @@ export default class Camera {
         mat4.translate(this.modelView, this.modelView, vec3.fromValues(0.0, 0.0, -this.distance));
         mat4.rotateX(this.modelView, this.modelView, this.rX);
         mat4.rotateY(this.modelView, this.modelView, this.rY);
+    }
 
+    public perspective() {
         mat4.perspective(this.projection, 45.0, engine.viewport.aspect, 0.1, 100.0);
+    }
+
+    public ortho() {
+        mat4.ortho(this.projection, 0, engine.viewport.viewport.width, engine.viewport.viewport.height, 0, 0, -1.0);
     }
 }
