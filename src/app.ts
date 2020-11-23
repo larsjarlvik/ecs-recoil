@@ -13,7 +13,7 @@ import { SpinnerSystem } from 'ecs/systems/SpinnerSystem';
 import { LightSystem } from 'ecs/systems/LightSystem';
 import { TransformSystem } from 'ecs/systems/TransformSystem';
 import { UiSystem } from 'ecs/systems/UiSystem';
-import { FpsRenderSystem } from 'ecs/systems/FpsRenderSystemt';
+import { FpsRenderSystem } from 'ecs/systems/FpsRenderSystem';
 import * as engine from 'engine';
 
 const camera = Camera.Instance;

@@ -24,6 +24,4 @@ void main() {
     vertGamma = data.gamma;
 
     gl_Position = projection * vec4(data.posAtlas.xy + aVertex, 0.0, 1.0);
-
-
 }

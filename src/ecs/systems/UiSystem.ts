@@ -15,7 +15,10 @@ export class UiSystem extends System {
             if (!scene.root.ui.font) return;
             const data = entity.getComponent(Text)!;
 
-            if (!scene.root.ui.texts[entity.id] || scene.root.ui.texts[entity.id].data.value !== data.value) {
+            if (!scene.root.ui.texts[entity.id] ||
+                scene.root.ui.texts[entity.id].data.value !== data.value ||
+                scene.root.ui.texts[entity.id].data.color !== data.color ||
+                scene.root.ui.texts[entity.id].data.size !== data.size) {
                 const buffers = engine.text.createText(scene.root.ui.font.metrics, data.value, data.size);
                 scene.root.ui.texts[entity.id] = {
                     buffers,
