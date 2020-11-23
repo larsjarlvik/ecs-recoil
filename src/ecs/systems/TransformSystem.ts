@@ -7,7 +7,7 @@ const scene = Scene.Instance;
 
 export class TransformSystem extends System {
     execute() {
-        this.queries.transforms.results.forEach(entity => {
+        this.queries.transforms.results.forEach((entity) => {
             const transform = entity.getComponent(Transform)!;
             const transformMatrix = mat4.create();
 

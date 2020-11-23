@@ -38,7 +38,7 @@ export class DefaultRenderer {
             this.uniformBuffer.set({
                 modelView: { type: 'mat', value: camera.modelView },
                 projection: { type: 'mat', value: camera.projection },
-                transform: { type: 'mat', value: this.scene.root.transforms[key] },
+                transform: { type: 'mat', value: this.scene.root.transforms[key][0] },
                 hasNormalMap: { type: 'float', value: model.normalTexture !== null ? 1.0 : 0.0 },
                 hasOrmTexture: { type: 'float', value: model.ormTexture !== null ? 1.0 : 0.0 },
                 metallic: { type: 'float', value: model.metallicFactor },
