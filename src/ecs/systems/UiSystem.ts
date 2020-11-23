@@ -7,17 +7,24 @@ const scene = Scene.Instance;
 
 export class UiSystem extends System {
     execute() {
-        this.queries.texts.added!.forEach(entity => {
+        this.queries.texts.removed!.forEach(entity => {
+            delete scene.root.ui.texts[entity.id];
+        });
+
+        this.queries.texts.results.forEach(entity => {
             const data = entity.getComponent(Text)!;
-            const buffers = engine.text.createText(data.value, data.size);
-            scene.root.ui.texts[entity.id] = {
-                buffers,
-                data,
-            };
+
+            if (!scene.root.ui.texts[entity.id] || scene.root.ui.texts[entity.id].data.value !== data.value) {
+                const buffers = engine.text.createText(data.value, data.size);
+                scene.root.ui.texts[entity.id] = {
+                    buffers,
+                    data: { ...data },
+                };
+            }
         });
     }
 }
 
 UiSystem.queries = {
-    texts: { components: [Text], listen: { added: true, removed: true }  }
+    texts: { components: [Text], listen: { removed: true }  }
 };

@@ -25,6 +25,7 @@ export default class GL {
         this.gl.cullFace(this.gl.BACK);
         this.gl.frontFace(this.gl.CCW);
         this.gl.clearColor(settings.clearColor[0], settings.clearColor[1], settings.clearColor[2], settings.clearColor[3]);
+        this.gl.blendFuncSeparate(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA, this.gl.ONE, this.gl.ONE);
     }
 
     public static get Instance(): WebGL2RenderingContext {

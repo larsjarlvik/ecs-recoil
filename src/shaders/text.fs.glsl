@@ -11,8 +11,8 @@ in float vertGamma;
 out vec4 fragColor;
 
 void main() {
-    vec4 tex = texture(uTexture, vertTexCoord);
-    float alpha = smoothstep(vertBuffer - vertGamma, vertBuffer + vertGamma, tex.r);
+    float dist = texture(uTexture, vertTexCoord).r;
+    float alpha = smoothstep(vertBuffer - vertGamma, vertBuffer + vertGamma, dist);
 
-    fragColor = vec4(tex.rgb, alpha * vertColor.a);
+    fragColor = vec4(vertColor.rgb, alpha * vertColor.a);
 }

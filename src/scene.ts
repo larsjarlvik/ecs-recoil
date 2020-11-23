@@ -9,6 +9,12 @@ import { TextBuffer } from 'engine/utils/text';
 
 const camera = Camera.Instance;
 
+export class FpsCounter {
+    lastUpdate: number;
+    fps: number;
+    current: number;
+}
+
 export interface SceneText {
     buffers: TextBuffer;
     data: Text;
@@ -19,6 +25,7 @@ export interface SceneUi {
 }
 
 export interface SceneRoot {
+    fps: FpsCounter;
     models: { [key: string]: Model };
     lights: { [key: string]: Light };
     lightCount: number;
@@ -40,6 +47,7 @@ export default class Scene {
         this.defaultRenderer = new engine.DefaultRenderer(this);
         this.textRenderer = new engine.TextRenderer(this);
         this.root = {
+            fps: { lastUpdate: 0, fps: 0, current: 0 },
             models: {},
             lights: {},
             lightCount: 0,
@@ -69,7 +77,7 @@ export default class Scene {
         await this.textRenderer.init();
     }
 
-    public render() {
+    public render(_: number, time: number) {
         if (!this.isReady) return;
 
         camera.perspective();
@@ -87,8 +95,16 @@ export default class Scene {
         this.fxaa.render();
 
         // UI
-        engine.screen.clearScreen();
         camera.ortho();
         this.textRenderer.render();
+
+        // Fps
+        if (this.root.fps.lastUpdate <= time - 1000) {
+            this.root.fps.fps = Math.round(this.root.fps.current / (time - this.root.fps.lastUpdate) * 1000.0);
+            this.root.fps.current = 0;
+            this.root.fps.lastUpdate = time;
+        }
+
+        this.root.fps.current ++;
     }
 }

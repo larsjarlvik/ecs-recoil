@@ -57,26 +57,11 @@ const drawGlyph = (chr: string, pen, size: number, vertexElements: number[], tex
     pen.x = pen.x + horiAdvance * scale;
 };
 
-const measureText = (text: string, size: number) => {
-    const dimensions = {
-        advance: 0
-    };
-
-    const scale = size / metrics.size;
-    for (let i = 0; i < text.length; i++) {
-        const horiAdvance = metrics.chars[text[i]][4];
-        dimensions.advance += horiAdvance * scale;
-    }
-
-    return dimensions;
-};
-
 export const createText = (value: string, size: number) => {
     const vertexElements = [];
     const textureElements = [];
-    const dimensions = measureText(value, size);
 
-    const pen = { x: gl.drawingBufferWidth / 2 - dimensions.advance / 2, y: gl.drawingBufferHeight / 2 };
+    const pen = { x: 0.0, y: size * 0.8 };
     for (let i = 0; i < value.length; i++) {
         const chr = value[i];
         drawGlyph(chr, pen, size, vertexElements, textureElements);

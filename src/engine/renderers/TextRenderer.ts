@@ -14,6 +14,8 @@ export class TextRenderer {
     private scene: Scene;
     private texture: WebGLTexture;
     private projectionLocation: WebGLUniformLocation;
+    private atlasWidth: number;
+    private atlasHeight: number;
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -31,6 +33,8 @@ export class TextRenderer {
 
     public async init() {
         const img = await image.load('/opensans.png');
+        this.atlasWidth = img.width;
+        this.atlasHeight = img.height;
         this.texture = gl.createTexture()!;
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, img);
@@ -53,21 +57,14 @@ export class TextRenderer {
         Object.keys(this.scene.root.ui.texts).forEach(key => {
             const text = this.scene.root.ui.texts[key];
 
-            this.uniformBuffer.set({
-                color: { type: 'vec', value: text.data.color },
-                buffer: { type: 'float', value: text.data.buffer },
-                gamma: { type: 'float', value: 0.0 },
-            });
-
             gl.bindBuffer(gl.ARRAY_BUFFER, text.buffers.vertexBuffer);
             gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
             gl.bindBuffer(gl.ARRAY_BUFFER, text.buffers.texCoordBuffer);
             gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
-            gl.drawArrays(gl.TRIANGLES, 0, text.buffers.length);
 
             this.uniformBuffer.set({
-                color: { type: 'vec', value: vec4.fromValues(0.0, 0.0, 0.0, 1.0) },
+                positionTextureSize: { type: 'vec', value: vec4.fromValues(text.data.position[0], text.data.position[1], this.atlasWidth, this.atlasHeight) },
+                color: { type: 'vec', value: text.data.color },
                 buffer: { type: 'float', value: 192 / 256 },
                 gamma: { type: 'float', value: text.data.gamma * 1.4142 / text.data.size },
             });
