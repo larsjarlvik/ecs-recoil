@@ -1,7 +1,7 @@
 #version 300 es
 precision mediump float;
 
-layout(location = 0) in vec3 aVertex;
+layout(location = 0) in vec2 aVertex;
 
 uniform vec2 uResolution;
 
@@ -22,5 +22,5 @@ void main(void) {
     rgbM = vec2(fragCoord * inverseVP);
     resolution = uResolution;
 
-    gl_Position = vec4(aVertex, 1.0);
+    gl_Position = vec4(aVertex, 0.0, 1.0);
 }

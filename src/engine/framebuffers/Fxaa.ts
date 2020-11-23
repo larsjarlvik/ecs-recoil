@@ -46,6 +46,7 @@ export class Fxaa {
 
         window.addEventListener('viewportResize', () => {
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+            gl.useProgram(this.shaderProgram);
             gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth, gl.drawingBufferHeight);
             this.colorTarget = this.buildColorTexture();
         });

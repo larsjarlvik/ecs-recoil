@@ -22,10 +22,10 @@ export default class GL {
         this.gl.enableVertexAttribArray(0);
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.enable(this.gl.CULL_FACE);
-        this.gl.enable(this.gl.SAMPLE_ALPHA_TO_COVERAGE);
         this.gl.cullFace(this.gl.BACK);
         this.gl.frontFace(this.gl.CCW);
         this.gl.clearColor(settings.clearColor[0], settings.clearColor[1], settings.clearColor[2], settings.clearColor[3]);
+        this.gl.blendFuncSeparate(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA, this.gl.ONE, this.gl.ONE);
     }
 
     public static get Instance(): WebGL2RenderingContext {
