@@ -5,9 +5,11 @@ import { Text } from 'ecs/components/Text';
 import { Environment, loadEnvironment } from 'engine/utils/environment';
 import * as engine from 'engine';
 import Camera from './camera';
-import { TextBuffer } from 'engine/utils/text';
+import { Metrics, TextBuffer } from 'engine/utils/text';
+import settings from 'settings';
 
 const camera = Camera.Instance;
+
 
 export class FpsCounter {
     lastUpdate: number;
@@ -21,6 +23,12 @@ export interface SceneText {
 }
 
 export interface SceneUi {
+    font?: {
+        texture: WebGLTexture;
+        metrics: Metrics;
+        width: number;
+        height: number;
+    };
     texts: { [key: string ]: SceneText };
 }
 
@@ -74,7 +82,13 @@ export default class Scene {
         this.gBuffer = new engine.GBuffer(this);
         this.isReady = true;
 
-        await this.textRenderer.init();
+        const fontImage = await engine.image.load(`ui/${settings.fontName}.png`);
+        const fontMetrics = await engine.http.request(`ui/${settings.fontName}.json`);
+
+        this.root.ui.font = {
+            ...engine.TextRenderer.createFontTexture(fontImage),
+            metrics: fontMetrics,
+        };
     }
 
     public render(_: number, time: number) {
@@ -86,6 +100,7 @@ export default class Scene {
         this.gBuffer.bind();
         engine.screen.clearScreen();
         this.defaultRenderer.render(camera);
+        this.gBuffer.unbind();
 
         // Draw pass
         this.fxaa.bind();

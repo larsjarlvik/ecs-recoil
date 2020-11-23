@@ -95,11 +95,13 @@ export class GBuffer {
     }
 
     public bind() {
+        gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
     }
 
     public unbind() {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     }
 
     private getLightBuffer() {

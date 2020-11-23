@@ -2,7 +2,6 @@ import GL from 'engine/gl';
 import Scene from 'scene';
 import { UniformBufferWrapper } from 'engine/utils/UniformBuffer';
 import { shader, ShaderType } from 'engine';
-import * as image from 'engine/utils/image';
 import Camera from 'camera';
 import { vec4 } from 'gl-matrix';
 
@@ -12,10 +11,7 @@ export class TextRenderer {
     private shaderProgram: WebGLProgram;
     private uniformBuffer: UniformBufferWrapper;
     private scene: Scene;
-    private texture: WebGLTexture;
     private projectionLocation: WebGLUniformLocation;
-    private atlasWidth: number;
-    private atlasHeight: number;
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -31,20 +27,21 @@ export class TextRenderer {
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uTexture')!, 0);
     }
 
-    public async init() {
-        const img = await image.load('/opensans.png');
-        this.atlasWidth = img.width;
-        this.atlasHeight = img.height;
-        this.texture = gl.createTexture()!;
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    public static createFontTexture(img: HTMLImageElement) {
+        const texture = gl.createTexture()!;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, img);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        return { texture, width: img.width, height: img.height };
     }
 
     public render() {
+        const font = this.scene.root.ui.font;
+        if (!font) return;
+
         gl.enable(gl.BLEND);
         gl.useProgram(this.shaderProgram);
         gl.enableVertexAttribArray(1);
@@ -52,7 +49,7 @@ export class TextRenderer {
         gl.uniformMatrix4fv(this.projectionLocation, false, Camera.Instance.projection);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.bindTexture(gl.TEXTURE_2D, font.texture);
 
         Object.keys(this.scene.root.ui.texts).forEach(key => {
             const text = this.scene.root.ui.texts[key];
@@ -63,10 +60,10 @@ export class TextRenderer {
             gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
 
             this.uniformBuffer.set({
-                positionTextureSize: { type: 'vec', value: vec4.fromValues(text.data.position[0], text.data.position[1], this.atlasWidth, this.atlasHeight) },
+                positionTextureSize: { type: 'vec', value: vec4.fromValues(text.data.position[0], text.data.position[1], font.width, font.height) },
                 color: { type: 'vec', value: text.data.color },
                 buffer: { type: 'float', value: 192 / 256 },
-                gamma: { type: 'float', value: text.data.gamma * 1.4142 / text.data.size },
+                gamma: { type: 'float', value: 1.6 * 1.4142 / text.data.size },
             });
             gl.drawArrays(gl.TRIANGLES, 0, text.buffers.length);
         });

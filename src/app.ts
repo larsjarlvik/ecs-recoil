@@ -34,8 +34,8 @@ async function start() {
         .registerSystem(SpinnerSystem)
         .registerSystem(DefaultRenderSystem)
         .registerSystem(LightSystem)
-        .registerSystem(UiSystem)
-        .registerSystem(FpsRenderSystem);
+        .registerSystem(FpsRenderSystem)
+        .registerSystem(UiSystem);
 
     world.createEntity('waterbottle')
         .addComponent(Model, model)
@@ -59,7 +59,7 @@ async function start() {
 
     world.createEntity('test')
         .addComponent(FpsCounter)
-        .addComponent(Text, { position: vec2.fromValues(10.0, 10.0), color: vec4.fromValues(1.0, 1.0, 1.0, 1.0), buffer: 1.0, size: 14, gamma: 0.8 });
+        .addComponent(Text, { position: vec2.fromValues(10.0, 10.0), color: vec4.fromValues(1.0, 1.0, 1.0, 1.0), size: 15 });
 
     let lastTime = performance.now();
 

@@ -12,10 +12,11 @@ export class UiSystem extends System {
         });
 
         this.queries.texts.results.forEach(entity => {
+            if (!scene.root.ui.font) return;
             const data = entity.getComponent(Text)!;
 
             if (!scene.root.ui.texts[entity.id] || scene.root.ui.texts[entity.id].data.value !== data.value) {
-                const buffers = engine.text.createText(data.value, data.size);
+                const buffers = engine.text.createText(scene.root.ui.font.metrics, data.value, data.size);
                 scene.root.ui.texts[entity.id] = {
                     buffers,
                     data: { ...data },
