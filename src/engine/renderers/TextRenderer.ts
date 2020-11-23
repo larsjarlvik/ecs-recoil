@@ -54,17 +54,18 @@ export class TextRenderer {
         Object.keys(this.scene.root.ui.texts).forEach(key => {
             const text = this.scene.root.ui.texts[key];
 
+            this.uniformBuffer.set({
+                buffer: { type: 'float', value: 192 / 256 },
+                gamma: { type: 'float', value: 1.6 * 1.4142 / text.data.size },
+                positionTextureSize: { type: 'vec', value: vec4.fromValues(text.data.position[0], text.data.position[1], font.width, font.height) },
+                color: { type: 'vec', value: text.data.color },
+            });
+
             gl.bindBuffer(gl.ARRAY_BUFFER, text.buffers.vertexBuffer);
             gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
             gl.bindBuffer(gl.ARRAY_BUFFER, text.buffers.texCoordBuffer);
             gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
 
-            this.uniformBuffer.set({
-                positionTextureSize: { type: 'vec', value: vec4.fromValues(text.data.position[0], text.data.position[1], font.width, font.height) },
-                color: { type: 'vec', value: text.data.color },
-                buffer: { type: 'float', value: 192 / 256 },
-                gamma: { type: 'float', value: 1.6 * 1.4142 / text.data.size },
-            });
             gl.drawArrays(gl.TRIANGLES, 0, text.buffers.length);
         });
 

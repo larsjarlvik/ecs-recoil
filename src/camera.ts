@@ -43,6 +43,6 @@ export default class Camera {
     }
 
     public ortho() {
-        mat4.ortho(this.projection, 0, engine.viewport.viewport.width, engine.viewport.viewport.height, 0, 0, -1.0);
+        mat4.ortho(this.projection, 0, engine.viewport.viewport.width / window.devicePixelRatio, engine.viewport.viewport.height / window.devicePixelRatio, 0, 0, -1.0);
     }
 }

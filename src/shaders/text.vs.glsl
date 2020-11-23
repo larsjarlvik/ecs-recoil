@@ -5,10 +5,10 @@ layout(location = 0) in vec2 aVertex;
 layout(location = 1) in vec2 aTexCoord;
 
 uniform uData {
-    vec4 posAtlas;
-    vec4 color;
     float buf;
     float gamma;
+    vec4 posAtlas;
+    vec4 color;
 } data;
 
 uniform mat4 projection;
