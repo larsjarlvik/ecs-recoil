@@ -39,7 +39,7 @@ export default class Camera {
     }
 
     public perspective() {
-        mat4.perspective(this.projection, 45.0, engine.viewport.aspect, 0.1, 300.0);
+        mat4.perspective(this.projection, 45.0, engine.viewport.aspect, 0.1, 100.0);
     }
 
     public ortho() {

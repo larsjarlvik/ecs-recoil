@@ -1,9 +1,9 @@
-import GL from 'engine/gl';
-import Scene from 'scene';
-import { UniformBufferWrapper } from 'engine/utils/UniformBuffer';
-import Camera from 'camera';
-import { shader, ShaderType } from 'engine';
 import { mat4 } from 'gl-matrix';
+import GL from 'engine/gl';
+import { shader, ShaderType } from 'engine';
+import { UniformBufferWrapper } from 'engine/utils/UniformBuffer';
+import Scene from 'scene';
+import Camera from 'camera';
 
 const gl = GL.Instance;
 
@@ -85,7 +85,6 @@ export class InstancedRenderer {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, instances.model.indexBuffer);
             gl.drawElementsInstanced(gl.TRIANGLES, instances.model.length, gl.UNSIGNED_SHORT, 0, instances.count);
         });
-
 
         gl.disableVertexAttribArray(1);
         gl.disableVertexAttribArray(2);

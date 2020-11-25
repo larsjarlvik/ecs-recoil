@@ -9,14 +9,14 @@ import { Transform } from 'ecs/components/Transform';
 import { FpsCounter, InstancedRender, Render, Spin } from 'ecs/components/TagComponents';
 import { Text } from 'ecs/components/Text';
 import { DefaultRenderSystem } from 'ecs/systems/DefaultRenderSystem';
+import { Instances } from 'ecs/components/Instance';
+import { InstancedRenderSystem } from 'ecs/systems/InstancedRenderSystem';
 import { SpinnerSystem } from 'ecs/systems/SpinnerSystem';
 import { LightSystem } from 'ecs/systems/LightSystem';
 import { TransformSystem } from 'ecs/systems/TransformSystem';
 import { UiSystem } from 'ecs/systems/UiSystem';
 import { FpsRenderSystem } from 'ecs/systems/FpsRenderSystem';
 import * as engine from 'engine';
-import { Instances } from 'ecs/components/Instance';
-import { InstancedRenderSystem } from 'ecs/systems/InstancedRenderSystem';
 
 const camera = Camera.Instance;
 const scene = Scene.Instance;
