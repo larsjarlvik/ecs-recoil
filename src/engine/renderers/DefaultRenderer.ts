@@ -38,7 +38,7 @@ export class DefaultRenderer {
             this.uniformBuffer.set({
                 modelView: { type: 'mat', value: camera.modelView },
                 projection: { type: 'mat', value: camera.projection },
-                transform: { type: 'mat', value: this.scene.root.transforms[key][0] },
+                transform: { type: 'mat', value: this.scene.root.transforms[key] },
                 hasNormalMap: { type: 'float', value: model.normalTexture !== null ? 1.0 : 0.0 },
                 hasOrmTexture: { type: 'float', value: model.ormTexture !== null ? 1.0 : 0.0 },
                 metallic: { type: 'float', value: model.metallicFactor },
@@ -65,7 +65,7 @@ export class DefaultRenderer {
             gl.vertexAttribPointer(3, 2, gl.FLOAT, false, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
-            gl.drawElements(gl.TRIANGLES, model.length, gl.UNSIGNED_SHORT,0);
+            gl.drawElements(gl.TRIANGLES, model.length, gl.UNSIGNED_SHORT, 0);
         });
 
         gl.disableVertexAttribArray(1);

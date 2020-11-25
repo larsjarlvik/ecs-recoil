@@ -44,9 +44,9 @@ async function start() {
 
     const instances: Instance[] = [];
     for (let i = 0; i < 5000; i ++) {
-        instances.push({ position: vec3.fromValues((Math.random() - 0.5) * 100.0, (Math.random() - 0.5) * 100.0, (Math.random() - 0.5) * 100.0), rotation: Math.random(), scale: Math.random() * 0.2 + 0.9 });
+        instances.push({ position: vec3.fromValues((Math.random() - 0.5) * 150.0, 0.0, (Math.random() - 0.5) * 150.0), rotation: Math.random() * 4.0, scale: Math.random() * 2.0 });
     }
-    world.createEntity('waterbottle')
+    world.createEntity('tree')
         .addComponent(Model, model)
         .addComponent(Instances, { instances })
         .addComponent(InstancedRender);

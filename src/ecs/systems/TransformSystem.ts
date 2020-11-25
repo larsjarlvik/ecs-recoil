@@ -11,8 +11,8 @@ export class TransformSystem extends System {
             const transform = entity.getComponent(Transform)!;
             const transformMatrix = mat4.create();
 
-            if (transform.translation) mat4.translate(transformMatrix, transformMatrix, transform.translation);
-            if (transform.rotation) {
+            if (transform.translation.length) mat4.translate(transformMatrix, transformMatrix, transform.translation);
+            if (transform.rotation.length) {
                 mat4.rotateX(transformMatrix, transformMatrix, transform.rotation[0]);
                 mat4.rotateY(transformMatrix, transformMatrix, transform.rotation[1]);
                 mat4.rotateZ(transformMatrix, transformMatrix, transform.rotation[2]);
