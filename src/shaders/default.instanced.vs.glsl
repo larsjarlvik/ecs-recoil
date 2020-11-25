@@ -5,6 +5,8 @@ layout(location = 0) in vec3 aVertex;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec4 aTangent;
 layout(location = 3) in vec2 aUv;
+layout(location = 4) in vec3 aTranslation;
+layout(location = 5) in vec3 aRotScale;
 
 uniform uData {
     mat4 modelView;
@@ -21,14 +23,21 @@ out vec3 vertNormal;
 out mat3 vertTangent;
 out vec2 vertUv;
 
+mat3 rotateY(float rad) {
+    float c = cos(rad);
+    float s = sin(rad);
+    return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c);
+}
+
 void main(void) {
-    vec3 normalW = normalize(vec3(data.transform * vec4(aNormal.xyz, 0.0)));
-    vec3 tangentW = normalize(vec3(data.transform * vec4(aTangent.xyz, 0.0)));
+    mat3 rotationMatrix = rotateY(aRotScale.x);
+    vec3 normalW = normalize(vec3(vec4(aNormal.xyz, 0.0)));
+    vec3 tangentW = normalize(vec3(vec4(aTangent.xyz, 0.0)));
     vec3 bitangentW = cross(normalW, tangentW) * aTangent.w;
 
-    vertPosition = data.transform * vec4(aVertex, 1.0);
-    vertNormal = normalW;
-    vertTangent = mat3(tangentW, bitangentW, normalW);
+    vertPosition = vec4(aTranslation + aVertex * rotationMatrix * aRotScale.y, 1.0);
+    vertNormal = normalW * rotationMatrix;
+    vertTangent = mat3(tangentW, bitangentW, vertNormal);
     vertUv = aUv;
 
     gl_Position = data.projection * data.modelView * vertPosition;

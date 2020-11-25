@@ -9,6 +9,7 @@ in vec2 vertUv;
 uniform sampler2D uBaseColor;
 uniform sampler2D uNormalMap;
 uniform sampler2D uOrm;
+
 uniform uData {
     mat4 modelView;
     mat4 projection;

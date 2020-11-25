@@ -6,9 +6,11 @@ import Scene from 'scene';
 import { Model } from 'ecs/components/Model';
 import { Light } from 'ecs/components/Light';
 import { Transform } from 'ecs/components/Transform';
-import { FpsCounter, Renderable, Spin } from 'ecs/components/TagComponents';
+import { FpsCounter, InstancedRender, Render, Spin } from 'ecs/components/TagComponents';
 import { Text } from 'ecs/components/Text';
 import { DefaultRenderSystem } from 'ecs/systems/DefaultRenderSystem';
+import { Instances } from 'ecs/components/Instance';
+import { InstancedRenderSystem } from 'ecs/systems/InstancedRenderSystem';
 import { SpinnerSystem } from 'ecs/systems/SpinnerSystem';
 import { LightSystem } from 'ecs/systems/LightSystem';
 import { TransformSystem } from 'ecs/systems/TransformSystem';
@@ -25,7 +27,9 @@ async function start() {
     const world = new World()
         .registerComponent(Model)
         .registerComponent(Transform)
-        .registerComponent(Renderable)
+        .registerComponent(Render)
+        .registerComponent(InstancedRender)
+        .registerComponent(Instances)
         .registerComponent(Spin)
         .registerComponent(Light)
         .registerComponent(Text)
@@ -33,6 +37,7 @@ async function start() {
         .registerSystem(TransformSystem)
         .registerSystem(SpinnerSystem)
         .registerSystem(DefaultRenderSystem)
+        .registerSystem(InstancedRenderSystem)
         .registerSystem(LightSystem)
         .registerSystem(FpsRenderSystem)
         .registerSystem(UiSystem);
@@ -41,13 +46,13 @@ async function start() {
         .addComponent(Model, model)
         .addComponent(Spin)
         .addComponent(Transform, { translation: vec3.fromValues(-0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
-        .addComponent(Renderable);
+        .addComponent(Render);
 
     world.createEntity('waterbottle2')
         .addComponent(Model, model)
         .addComponent(Spin)
         .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
-        .addComponent(Renderable);
+        .addComponent(Render);
 
     world.createEntity('myFirstLight')
         .addComponent(Transform, { translation: vec3.fromValues( 0.5, 0.0, 0.0) })

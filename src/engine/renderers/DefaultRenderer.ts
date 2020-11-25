@@ -65,7 +65,7 @@ export class DefaultRenderer {
             gl.vertexAttribPointer(3, 2, gl.FLOAT, false, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
-            gl.drawElements(gl.TRIANGLES, model.length, gl.UNSIGNED_SHORT,0);
+            gl.drawElements(gl.TRIANGLES, model.length, gl.UNSIGNED_SHORT, 0);
         });
 
         gl.disableVertexAttribArray(1);

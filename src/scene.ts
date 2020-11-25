@@ -10,7 +10,6 @@ import settings from 'settings';
 
 const camera = Camera.Instance;
 
-
 export class FpsCounter {
     lastUpdate: number;
     fps: number;
@@ -35,6 +34,7 @@ export interface SceneUi {
 export interface SceneRoot {
     fps: FpsCounter;
     models: { [key: string]: Model };
+    instancedModels: { [key: string]: { model: Model, position: WebGLBuffer, rotScale: WebGLBuffer, count: number }}
     lights: { [key: string]: Light };
     lightCount: number;
     transforms: { [key: string]: mat4 };
@@ -49,14 +49,17 @@ export default class Scene {
     private gBuffer: engine.GBuffer;
     private isReady = false;
     private defaultRenderer: engine.DefaultRenderer;
+    private instancedRenderer: engine.InstancedRenderer;
     private textRenderer: engine.TextRenderer;
 
     private constructor() {
         this.defaultRenderer = new engine.DefaultRenderer(this);
+        this.instancedRenderer = new engine.InstancedRenderer(this);
         this.textRenderer = new engine.TextRenderer(this);
         this.root = {
             fps: { lastUpdate: 0, fps: 0, current: 0 },
             models: {},
+            instancedModels: {},
             lights: {},
             lightCount: 0,
             transforms: {},
@@ -100,6 +103,7 @@ export default class Scene {
         this.gBuffer.bind();
         engine.screen.clearScreen();
         this.defaultRenderer.render(camera);
+        this.instancedRenderer.render(camera);
         this.gBuffer.unbind();
 
         // Draw pass

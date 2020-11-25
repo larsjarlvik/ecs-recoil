@@ -1,5 +1,6 @@
 import { TagComponent } from 'ecsy';
 
-export class Renderable extends TagComponent {}
+export class Render extends TagComponent {}
+export class InstancedRender extends TagComponent {}
 export class Spin extends TagComponent {}
 export class FpsCounter extends TagComponent {}

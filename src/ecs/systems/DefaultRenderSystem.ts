@@ -1,9 +1,8 @@
 import { System } from 'ecsy';
 import { mat4 } from 'gl-matrix';
-import { Renderable } from 'ecs/components/TagComponents';
+import { Render } from 'ecs/components/TagComponents';
 import { Model } from 'ecs/components/Model';
 import Scene from 'scene';
-
 
 const scene = Scene.Instance;
 
@@ -23,5 +22,5 @@ export class DefaultRenderSystem extends System {
 }
 
 DefaultRenderSystem.queries = {
-    renderables: { components: [Renderable, Model], listen: { added: true, removed: true } }
+    renderables: { components: [Render, Model], listen: { added: true, removed: true } }
 };
