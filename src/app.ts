@@ -15,14 +15,14 @@ import { TransformSystem } from 'ecs/systems/TransformSystem';
 import { UiSystem } from 'ecs/systems/UiSystem';
 import { FpsRenderSystem } from 'ecs/systems/FpsRenderSystem';
 import * as engine from 'engine';
-import { Instance, Instances } from 'ecs/components/Instance';
+import { Instances } from 'ecs/components/Instance';
 import { InstancedRenderSystem } from 'ecs/systems/InstancedRenderSystem';
 
 const camera = Camera.Instance;
 const scene = Scene.Instance;
 
 async function start() {
-    const model = await engine.gltf.loadModel('pine/pine-1');
+    const model = await engine.gltf.loadModel('waterbottle/waterbottle');
 
     const world = new World()
         .registerComponent(Model)
@@ -42,14 +42,17 @@ async function start() {
         .registerSystem(FpsRenderSystem)
         .registerSystem(UiSystem);
 
-    const instances: Instance[] = [];
-    for (let i = 0; i < 5000; i ++) {
-        instances.push({ position: vec3.fromValues((Math.random() - 0.5) * 150.0, 0.0, (Math.random() - 0.5) * 150.0), rotation: Math.random() * 4.0, scale: Math.random() * 2.0 });
-    }
-    world.createEntity('tree')
+    world.createEntity('waterbottle')
         .addComponent(Model, model)
-        .addComponent(Instances, { instances })
-        .addComponent(InstancedRender);
+        .addComponent(Spin)
+        .addComponent(Transform, { translation: vec3.fromValues(-0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Render);
+
+    world.createEntity('waterbottle2')
+        .addComponent(Model, model)
+        .addComponent(Spin)
+        .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Render);
 
     world.createEntity('myFirstLight')
         .addComponent(Transform, { translation: vec3.fromValues( 0.5, 0.0, 0.0) })

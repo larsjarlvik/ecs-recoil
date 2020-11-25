@@ -39,7 +39,7 @@ void main(void) {
 
     vertPosition = vec4(aTranslation + aVertex * rotationMatrix * aRotScale.y, 1.0);
     vertNormal = normalW * rotationMatrix;
-    vertTangent = mat3(tangentW, bitangentW, normalW);
+    vertTangent = mat3(tangentW, bitangentW, vertNormal);
     vertUv = aUv;
 
     gl_Position = data.projection * data.modelView * vertPosition;
