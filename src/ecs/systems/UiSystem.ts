@@ -19,9 +19,9 @@ export class UiSystem extends System {
                 scene.root.ui.texts[entity.id].data.value !== data.value ||
                 scene.root.ui.texts[entity.id].data.color !== data.color ||
                 scene.root.ui.texts[entity.id].data.size !== data.size) {
-                const buffers = engine.text.createText(scene.root.ui.font.metrics, data.value, data.size);
+
                 scene.root.ui.texts[entity.id] = {
-                    buffers,
+                    buffers: engine.text.createText(scene.root.ui.font.metrics, data.value, data.size),
                     data: { ...data },
                 };
             }

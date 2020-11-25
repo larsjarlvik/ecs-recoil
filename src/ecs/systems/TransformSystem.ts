@@ -6,19 +6,21 @@ import Scene from 'scene';
 const scene = Scene.Instance;
 
 export class TransformSystem extends System {
+    private transformMatrix: mat4;
+
     execute() {
         this.queries.transforms.results.forEach((entity) => {
             const transform = entity.getComponent(Transform)!;
-            const transformMatrix = mat4.create();
+            this.transformMatrix = mat4.create();
 
-            if (transform.translation.length) mat4.translate(transformMatrix, transformMatrix, transform.translation);
+            if (transform.translation.length) mat4.translate(this.transformMatrix, this.transformMatrix, transform.translation);
             if (transform.rotation.length) {
-                mat4.rotateX(transformMatrix, transformMatrix, transform.rotation[0]);
-                mat4.rotateY(transformMatrix, transformMatrix, transform.rotation[1]);
-                mat4.rotateZ(transformMatrix, transformMatrix, transform.rotation[2]);
+                mat4.rotateX(this.transformMatrix, this.transformMatrix, transform.rotation[0]);
+                mat4.rotateY(this.transformMatrix, this.transformMatrix, transform.rotation[1]);
+                mat4.rotateZ(this.transformMatrix, this.transformMatrix, transform.rotation[2]);
             }
 
-            scene.root.transforms[entity.id] = transformMatrix;
+            scene.root.transforms[entity.id] = this.transformMatrix;
         });
     }
 }

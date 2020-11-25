@@ -20,6 +20,7 @@ export class UniformBufferWrapper {
     boundLocation: number;
     serializedData: number[];
     buffer: WebGLBuffer;
+    bufferArr: Float32Array;
 
     constructor(boundLocation: number) {
         this.boundLocation = boundLocation;
@@ -68,9 +69,10 @@ export class UniformBufferWrapper {
     set(data: UniformBuffer) {
         this.serializedData = [];
         this.build(data);
+        this.bufferArr = new Float32Array(this.serializedData);
 
         gl.bindBuffer(gl.UNIFORM_BUFFER, this.buffer);
-        gl.bufferData(gl.UNIFORM_BUFFER, new Float32Array(this.serializedData), gl.DYNAMIC_DRAW);
+        gl.bufferData(gl.UNIFORM_BUFFER, this.bufferArr, gl.DYNAMIC_DRAW);
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this.boundLocation, this.buffer);
     }
 }

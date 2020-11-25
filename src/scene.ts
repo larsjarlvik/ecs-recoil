@@ -101,7 +101,7 @@ export default class Scene {
 
         // Render
         this.gBuffer.bind();
-        engine.screen.clearScreen();
+        engine.screen.clearScreen(settings.renderScale);
         this.defaultRenderer.render(camera);
         this.instancedRenderer.render(camera);
         this.gBuffer.unbind();
@@ -109,8 +109,10 @@ export default class Scene {
         // Draw pass
         this.fxaa.bind();
         this.gBuffer.render(camera, this.environment);
+        this.fxaa.unbind();
 
         // Draw to screen
+        engine.screen.clearScreen(1.0);
         this.fxaa.render();
 
         // UI

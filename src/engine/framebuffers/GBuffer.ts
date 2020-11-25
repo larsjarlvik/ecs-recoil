@@ -5,7 +5,7 @@ import settings from 'settings';
 import GL from 'engine/gl';
 import * as shader from 'engine/utils/shader';
 import { createQuad, Quad } from 'engine/utils/quad';
-import { UniformBuffer, UniformBufferItem, UniformBufferWrapper } from 'engine/utils/UniformBuffer';
+import { UniformBufferItem, UniformBufferWrapper } from 'engine/utils/UniformBuffer';
 import { Environment } from 'engine/utils/environment';
 
 const gl = GL.Instance;
@@ -26,6 +26,7 @@ export class GBuffer {
 
     uniformBuffer: UniformBufferWrapper;
     renderQuad: Quad;
+    lightUniforms: any;
 
     private createBufferTexture(internalFormat: number, attachment: number) {
         gl.getExtension('EXT_color_buffer_float');
@@ -37,7 +38,7 @@ export class GBuffer {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texStorage2D(gl.TEXTURE_2D, 1, internalFormat, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.texStorage2D(gl.TEXTURE_2D, 1, internalFormat, gl.drawingBufferWidth * settings.renderScale, gl.drawingBufferHeight * settings.renderScale);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, target, 0);
         gl.bindTexture(gl.TEXTURE_2D, null);
         return target;
@@ -106,12 +107,12 @@ export class GBuffer {
 
     private getLightBuffer() {
         const keys = Object.keys(this.scene.root.lights);
-        const uniforms: UniformBuffer[] = [];
+        this.lightUniforms = [];
 
         for (let i = 0; i < keys.length; i ++) {
             const translation = vec3.create();
             mat4.getTranslation(translation, this.scene.root.transforms[keys[i]]);
-            uniforms.push({
+            this.lightUniforms.push({
                 position: { type: 'vec', value: translation },
                 range: { type: 'float', value: this.scene.root.lights[keys[i]].range },
                 color: { type: 'vec', value: this.scene.root.lights[keys[i]].color },
@@ -119,7 +120,7 @@ export class GBuffer {
             });
         }
 
-        return { type: 'struct', value: uniforms, arrayLength: settings.maxLights, size: 8 } as UniformBufferItem;
+        return { type: 'struct', value: this.lightUniforms, arrayLength: settings.maxLights, size: 8 } as UniformBufferItem;
     }
 
     public render(camera: Camera, environment: Environment) {

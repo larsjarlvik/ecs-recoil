@@ -1,6 +1,7 @@
 import GL from 'engine/gl';
 import * as shader from 'engine/utils/shader';
 import { createQuad, Quad } from 'engine/utils/quad';
+import settings from 'settings';
 
 const gl = GL.Instance;
 
@@ -38,7 +39,7 @@ export class Fxaa {
         this.resolutionLocation = gl.getUniformLocation(this.shaderProgram, 'uResolution')!;
 
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, 'uColor')!, 0);
-        gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth / settings.renderScale, gl.drawingBufferHeight / settings.renderScale);
 
         this.frameBuffer = gl.createFramebuffer()!;
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
@@ -47,7 +48,7 @@ export class Fxaa {
         window.addEventListener('viewportResize', () => {
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
             gl.useProgram(this.shaderProgram);
-            gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth, gl.drawingBufferHeight);
+            gl.uniform2f(this.resolutionLocation, gl.drawingBufferWidth / settings.renderScale, gl.drawingBufferHeight / settings.renderScale);
             this.colorTarget = this.buildColorTexture();
         });
     }
@@ -56,8 +57,11 @@ export class Fxaa {
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
     }
 
-    public render() {
+    public unbind() {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+    public render() {
         gl.useProgram(this.shaderProgram);
 
         gl.activeTexture(gl.TEXTURE0);
