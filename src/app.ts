@@ -42,13 +42,17 @@ async function start() {
         .registerSystem(FpsRenderSystem)
         .registerSystem(UiSystem);
 
-    for (let i = 0; i < 500; i ++) {
-        world.createEntity('waterbottle' + i)
-            .addComponent(Model, model)
-            .addComponent(Spin)
-            .addComponent(Transform, { translation: vec3.fromValues(Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
-            .addComponent(Render);
-    }
+    world.createEntity('waterbottle')
+        .addComponent(Model, model)
+        .addComponent(Spin)
+        .addComponent(Transform, { translation: vec3.fromValues(-0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Render);
+
+    world.createEntity('waterbottle2')
+        .addComponent(Model, model)
+        .addComponent(Spin)
+        .addComponent(Transform, { translation: vec3.fromValues( 0.1, 0.0, 0.0), rotation: vec3.fromValues(0.5, 0.5, 0.5) })
+        .addComponent(Render);
 
     world.createEntity('myFirstLight')
         .addComponent(Transform, { translation: vec3.fromValues( 0.5, 0.0, 0.0) })
