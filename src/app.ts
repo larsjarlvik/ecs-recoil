@@ -77,13 +77,14 @@ async function start() {
 
             lastFrameTimes.push(dt);
             if (lastFrameTimes.length > frameAvgCount) lastFrameTimes.shift();
+            const delta = lastFrameTimes.reduce((a, b) => a + b, 0) / frameAvgCount;
 
             // Update
             camera.update();
-            world.execute(lastFrameTimes.reduce((a, b) => a + b, 0) / frameAvgCount, now);
+            world.execute(delta, now);
 
             // Render
-            scene.render(lastFrameTimes.reduce((a, b) => a + b, 0) / frameAvgCount, now);
+            scene.render(delta, now);
 
             requestAnimationFrame((time) => { frame(time); });
         };
