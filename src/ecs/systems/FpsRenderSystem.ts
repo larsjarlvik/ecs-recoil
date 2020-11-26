@@ -10,7 +10,7 @@ export class FpsRenderSystem extends System {
     execute() {
         this.queries.fpsCounters.results.forEach(entity => {
             const text = entity.getMutableComponent(Text)!;
-            text.value = `FPS: ${scene.root.fps.fps}`;
+            text.value = `FPS: ${scene.root.fps.fps} - ${scene.root.fps.frameTime} ms`;
 
             const x = Math.min(scene.root.fps.fps / 60, 1.0);
             text.color = vec4.fromValues(2.0 * (1 - x), 2.0 * x, 0.0, 1.0);

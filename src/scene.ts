@@ -14,6 +14,7 @@ export class FpsCounter {
     lastUpdate: number;
     fps: number;
     current: number;
+    frameTime: number;
 }
 
 export interface SceneText {
@@ -57,7 +58,7 @@ export default class Scene {
         this.instancedRenderer = new engine.InstancedRenderer(this);
         this.textRenderer = new engine.TextRenderer(this);
         this.root = {
-            fps: { lastUpdate: 0, fps: 0, current: 0 },
+            fps: { lastUpdate: 0, fps: 0, current: 0, frameTime: 0 },
             models: {},
             instancedModels: {},
             lights: {},
@@ -119,6 +120,7 @@ export default class Scene {
         camera.ortho();
         this.textRenderer.render();
 
+
         // Fps
         if (this.root.fps.lastUpdate <= time - 1000) {
             this.root.fps.fps = Math.round(this.root.fps.current / (time - this.root.fps.lastUpdate) * 1000.0);
@@ -126,6 +128,7 @@ export default class Scene {
             this.root.fps.lastUpdate = time;
         }
 
+        this.root.fps.frameTime = Math.round(performance.now() - time);
         this.root.fps.current ++;
     }
 }
