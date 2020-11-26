@@ -66,22 +66,32 @@ async function start() {
         .addComponent(FpsCounter)
         .addComponent(Text, { position: vec2.fromValues(10.0, 10.0), color: vec4.fromValues(1.0, 1.0, 1.0, 1.0), size: 15 });
 
-    let lastTime = performance.now();
-    function run(time: number) {
-        const delta = time - lastTime;
+    const frameAvgCount = 10;
+    const gameLoop = () => {
+        let last: number = performance.now();
+        const lastFrameTimes: number[] = [];
 
-        // Update
-        camera.update();
-        world.execute(delta, time);
+        const frame = (now: number) => {
+            const dt = Math.min(0.1, (now - last) / 1000.0);
+            last = now;
 
-        // Render
-        scene.render(delta, time);
+            lastFrameTimes.push(dt);
+            if (lastFrameTimes.length > frameAvgCount) lastFrameTimes.shift();
 
-        lastTime = time;
-        requestAnimationFrame(run);
-    }
+            // Update
+            camera.update();
+            world.execute(lastFrameTimes.reduce((a, b) => a + b, 0) / frameAvgCount, now);
 
-    run(performance.now());
+            // Render
+            scene.render(lastFrameTimes.reduce((a, b) => a + b, 0) / frameAvgCount, now);
+
+            requestAnimationFrame((time) => { frame(time); });
+        };
+
+        frame(performance.now());
+    };
+
+    gameLoop();
 }
 
 start();
