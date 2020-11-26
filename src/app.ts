@@ -67,18 +67,12 @@ async function start() {
         .addComponent(Text, { position: vec2.fromValues(10.0, 10.0), color: vec4.fromValues(1.0, 1.0, 1.0, 1.0), size: 15 });
 
     let lastTime = performance.now();
-    let delta = -1;
-    const interval = (1 / 30) * 1000;
-    function run() {
-        const time = performance.now();
-        delta += time - lastTime;
+    function run(time: number) {
+        const delta = time - lastTime;
 
         // Update
-        if (delta === -1 || delta >= interval) {
-            camera.update();
-            world.execute(delta, time);
-            delta = delta % interval;
-        }
+        camera.update();
+        world.execute(delta, time);
 
         // Render
         scene.render(delta, time);
@@ -87,7 +81,7 @@ async function start() {
         requestAnimationFrame(run);
     }
 
-    run();
+    run(performance.now());
 }
 
 start();
