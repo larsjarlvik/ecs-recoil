@@ -3,7 +3,7 @@ import { vec3 } from 'gl-matrix';
 import { Spin } from 'ecs/components/TagComponents';
 import { Transform } from 'ecs/components/Transform';
 
-const speed = 0.001;
+const speed = 1.0;
 
 export class SpinnerSystem extends System {
     execute(delta: number) {
